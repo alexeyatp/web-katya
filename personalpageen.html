@@ -1,0 +1,2431 @@
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile Menu Toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navMenu').classList.toggle('active');
+        });
+        
+        // Materials Tabs
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Display current year in footer
+        const currentYear = new Date().getFullYear();
+        document.querySelector('.copyright').innerHTML = `&copy; ${currentYear} 2025 Personal page of teacher Elena Ivanova | All rights reserverd`;
+        
+        // ===== Файл успешно скачан - уведомление =====
+        const downloadLinks = document.querySelectorAll('.material-download');
+        const downloadToast = document.getElementById('downloadToast');
+        
+        downloadLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Get the filename from the material title
+                const materialTitle = this.closest('.material-item').querySelector('.material-title').textContent;
+                
+                // Customize toast message with file name
+                downloadToast.querySelector('.toast-message').textContent = `File "${materialTitle}" is succesfully downloaded!`;
+                
+                // Show toast notification
+                downloadToast.classList.add('active');
+                
+                // Auto hide after 4 seconds
+                setTimeout(() => {
+                    downloadToast.classList.remove('active');
+                }, 4000);
+                
+                // You would normally trigger the actual download here
+                console.log(`Downloading: ${materialTitle}`);
+            });
+        });
+        
+        // Закрытие уведомлений по клику на крестик
+        document.querySelectorAll('.toast-close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.toast-notification').classList.remove('active');
+            });
+        });
+        
+        // ===== Обработка формы обратной связи =====
+        const contactForm = document.getElementById('contactForm');
+        const contactToast = document.getElementById('contactToast');
+        
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simulate form submission
+                const formData = new FormData(contactForm);
+                const formValues = Object.fromEntries(formData.entries());
+                
+                console.log('Form submitted:', formValues);
+                
+                // Show success toast
+                contactToast.classList.add('active');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    contactToast.classList.remove('active');
+                }, 5000);
+                
+                // Reset form
+                contactForm.reset();
+            });
+        }
+        
+        // ===== Запись на консультацию - календарь и модалка =====
+        const availableDays = document.querySelectorAll('.calendar-day.available');
+        const consultationModal = document.getElementById('consultationModal');
+        const modalClose = document.getElementById('modalClose');
+        const consultationDate = document.getElementById('consultationDate');
+        const consultationForm = document.getElementById('consultationForm');
+        const consultationToast = document.getElementById('consultationToast');
+        let selectedDate = '';
+        let selectedTime = '';
+        
+        // Открытие модалки при клике на доступный день
+        availableDays.forEach(day => {
+            day.addEventListener('click', function() {
+                const date = this.getAttribute('data-date');
+                const dayNum = this.textContent.trim();
+                selectedDate = date;
+                
+                // Обновляем дату в модалке
+                consultationDate.textContent = `Date: ${dayNum} aprile 2025`;
+                
+                // Показываем модалку
+                consultationModal.classList.add('active');
+            });
+        });
+        
+        // Закрытие модалки
+        if (modalClose) {
+            modalClose.addEventListener('click', function() {
+                consultationModal.classList.remove('active');
+            });
+        }
+        
+        // Клик вне модалки для закрытия
+        window.addEventListener('click', function(e) {
+            if (e.target === consultationModal) {
+                consultationModal.classList.remove('active');
+            }
+        });
+        
+        // Выбор времени консультации
+        const timeSlots = document.querySelectorAll('.time-slot');
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', function() {
+                // Снимаем выделение со всех слотов
+                timeSlots.forEach(s => s.classList.remove('selected'));
+                
+                // Выделяем текущий слот
+                this.classList.add('selected');
+                selectedTime = this.getAttribute('data-time');
+            });
+        });
+        
+        // Обработка формы записи на консультацию
+        if (consultationForm) {
+            consultationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!selectedTime) {
+                    alert('Please, choose time for your consultation');
+                    return;
+                }
+                
+                // Simulate form submission
+                const formData = new FormData(consultationForm);
+                formData.append('date', selectedDate);
+                formData.append('time', selectedTime);
+                
+                const formValues = Object.fromEntries(formData.entries());
+                console.log('Consultation booked:', formValues);
+                
+                // Закрываем модалку
+                consultationModal.classList.remove('active');
+                
+                // Показываем успешное уведомление
+                consultationToast.classList.add('active');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    consultationToast.classList.remove('active');
+                }, 5000);
+                
+                // Reset form
+                consultationForm.reset();
+                timeSlots.forEach(s => s.classList.remove('selected'));
+            });
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                
+                // Пропускаем если это не якорная ссылка
+                if (targetId === '#' || targetId === '') return;
+                
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    document.getElementById('navMenu').classList.remove('active');
+                }
+            });
+        });
+    });
+</script>
+</body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elena Ivanova | Professor, ICS Department</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-blue: #0f335e;
+        --secondary-blue: #3498db;
+        --accent-yellow: #f39c12;
+        --text-dark: #333;
+        --text-light: #f8f9fa;
+        --background-light: #ffffff;
+        --background-gray: #f8f9fa;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --success-green: #28a745;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: var(--text-dark);
+        line-height: 1.6;
+        background-color: var(--background-light);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Header */
+    header {
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+        padding: 20px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+    }
+
+    .logo img {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+        border-radius: 50%;
+    }
+
+    .logo-text {
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .nav-menu {
+        display: flex;
+    }
+
+    .nav-menu li {
+        list-style: none;
+        margin-left: 25px;
+    }
+
+    .nav-menu a {
+        color: var(--text-light);
+        text-decoration: none;
+        font-weight: 1000;
+        transition: color 0.3s;
+        align-items: center;
+        text-align: center;
+    }
+
+    .nav-menu a:hover {
+        color: var(--accent-yellow);
+    }
+
+    .mobile-menu-toggle {
+        display: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+        color: var(--text-light);
+        padding: 80px 0;
+        text-align: center;
+    }
+
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        color: var(--text-light);
+        margin-bottom: 20px;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    .hero-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--accent-yellow);
+        margin-bottom: 30px;
+        box-shadow: var(--shadow);
+    }
+
+    .cta-button {
+        display: inline-block;
+        background-color: var(--accent-yellow);
+        color: var(--text-light);
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
+
+    .cta-button:hover {
+        background-color: #e67e22;
+    }
+
+    /* Sections */
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background-color: var(--accent-yellow);
+        margin: 15px auto 0;
+        border-radius: 2px;
+    }
+
+    /* About */
+    .about-content {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+    }
+
+    .about-text {
+        flex: 3;
+    }
+
+    .about-info {
+        flex: 2;
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .info-item {
+        margin-bottom: 15px;
+    }
+
+    .info-item strong {
+        color: var(--primary-blue);
+        margin-right: 10px;
+    }
+
+    /* Research */
+    .research-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .research-item {
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s;
+    }
+
+    .research-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .research-item h3 {
+        color: var(--secondary-blue);
+        margin-bottom: 15px;
+    }
+
+    /* Schedule */
+    .schedule-container {
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        overflow-x: auto;
+    }
+
+    .schedule-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .schedule-table th, .schedule-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .schedule-table th {
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+    }
+
+    .schedule-table tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Calendar */
+    .calendar-container {
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        margin-top: 40px;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .calendar-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-blue);
+    }
+
+    .calendar-nav {
+        display: flex;
+        gap: 10px;
+    }
+
+    .calendar-nav-btn {
+        background-color: var(--secondary-blue);
+        color: var(--text-light);
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 10px;
+    }
+
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .calendar-day:hover {
+        background-color: #e0e0e0;
+    }
+
+    .calendar-day.available {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .calendar-day.current {
+        background-color: var(--accent-yellow);
+        color: var(--text-light);
+    }
+
+    /* Materials */
+    .materials-tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .tab-button {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.3s;
+        color: var(--text-dark);
+    }
+
+    .tab-button.active {
+        color: var(--secondary-blue);
+        border-bottom: 3px solid var(--accent-yellow);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .materials-list {
+        list-style: none;
+    }
+
+    .material-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s;
+    }
+
+    .material-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .material-icon {
+        font-size: 1.5rem;
+        color: var(--secondary-blue);
+        margin-right: 15px;
+    }
+
+    .material-details {
+        flex-grow: 1;
+    }
+
+    .material-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .material-meta {
+        color: #777;
+        font-size: 0.9rem;
+    }
+
+    .material-download {
+        color: var(--accent-yellow);
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .material-download i {
+        margin-left: 5px;
+    }
+
+    /* News */
+    .news-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .news-item {
+        background-color: var(--background-gray);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s;
+    }
+
+    .news-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .news-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .news-content {
+        padding: 20px;
+    }
+
+    .news-date {
+        color: #777;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .news-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: var(--primary-blue);
+    }
+
+    .news-excerpt {
+        margin-bottom: 15px;
+    }
+
+    .read-more {
+        color: var(--secondary-blue);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    /* Contact */
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .contact-info {
+        background-color: var(--background-gray);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .contact-icon {
+        font-size: 1.2rem;
+        color: var(--secondary-blue);
+        margin-right: 15px;
+        margin-top: 3px;
+    }
+
+    .contact-details h4 {
+        margin-bottom: 5px;
+    }
+
+    .contact-form {
+        padding: 30px;
+        background-color: var(--background-gray);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--secondary-blue);
+        outline: none;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .submit-button {
+        background-color: var(--secondary-blue);
+        color: var(--text-light);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .submit-button:hover {
+        background-color: #2980b9;
+    }
+
+    /* Footer */
+    footer {
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+        padding: 40px 0 20px;
+        margin-top: 60px;
+    }
+
+    .footer-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+    }
+
+    .footer-column h3 {
+        color: var(--text-light);
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+    }
+
+    .footer-links {
+        list-style: none;
+    }
+
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+
+    .footer-links a {
+        color: #bdc3c7;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: var(--accent-yellow);
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 15px;
+    }
+
+    .social-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: var(--text-light);
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .social-icon:hover {
+        background-color: var(--accent-yellow);
+    }
+
+    .copyright {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.9rem;
+        color: #bdc3c7;
+    }
+
+    /* Language Switcher */
+    .language-switcher {
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+    }
+
+    .language-option {
+        margin: 0 5px;
+        color: #bdc3c7;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s;
+    }
+
+    .language-option.active {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .language-option:hover {
+        color: var(--accent-yellow);
+    }
+    
+    /* Toast Notification */
+    .toast-notification {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: transform 0.4s, opacity 0.4s;
+        min-width: 300px;
+        max-width: 400px;
+    }
+
+    .toast-notification.success {
+        background-color: var(--success-green);
+    }
+
+    .toast-notification.active {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .toast-icon {
+        margin-right: 15px;
+        font-size: 1.5rem;
+        color: var(--accent-yellow);
+    }
+
+    .toast-notification.success .toast-icon {
+        color: white;
+    }
+
+    .toast-message {
+        font-weight: 500;
+        flex-grow: 1;
+    }
+
+    .toast-close {
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        font-size: 1.2rem;
+        margin-left: 10px;
+        transition: color 0.3s;
+    }
+
+    .toast-close:hover {
+        color: white;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+        .about-content {
+            flex-direction: column;
+        }
+        
+        .contact-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .mobile-menu-toggle {
+            display: block;
+        }
+        
+        .nav-menu {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background-color: var(--primary-blue);
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    transform: translateY(-200%);
+    transition: transform 0.3s;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+        
+        .nav-menu.active {
+            transform: translateY(0);
+        }
+        
+        .nav-menu li {
+            margin: 15px 0;
+        }
+        
+        .hero h1 {
+            font-size: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-image {
+            width: 1000px;
+            height: 1000px;
+        }
+        
+        .research-grid, .news-list {
+            grid-template-columns: 1fr;
+        }
+
+        .toast-notification {
+            width: 90%;
+            left: 5%;
+            right: 5%;
+            min-width: unset;
+        }
+    }
+
+    /* Consultation Modal */
+    .consultation-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .consultation-modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: var(--shadow);
+        position: relative;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #777;
+        transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+        color: var(--primary-blue);
+    }
+
+    .modal-title {
+        margin-bottom: 20px;
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--accent-yellow);
+        padding-bottom: 10px;
+    }
+
+    .consultation-date {
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .consultation-time-slots {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .time-slot {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .time-slot:hover {
+        border-color: var(--secondary-blue);
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .time-slot.selected {
+        background-color: var(--secondary-blue);
+        color: white;
+        border-color: var(--secondary-blue);
+    }
+    /* News Modal Styles */
+.news-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+}
+
+.news-modal-content {
+    background-color: #fff;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 800px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: modalAnimation 0.4s;
+}
+
+@keyframes modalAnimation {
+    from {opacity: 0; transform: translateY(-30px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.news-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.news-modal-close:hover {
+    color: #333;
+}
+
+.news-modal h2 {
+    margin-top: 0;
+    color: var(--primary-blue);
+    margin-bottom: 10px;
+    padding-right: 30px;
+}
+
+.news-modal-date {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.news-modal-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.news-modal-text {
+    line-height: 1.7;
+}
+
+.news-modal-text p {
+    margin-bottom: 15px;
+}
+
+.news-modal-text ul {
+    margin-bottom: 15px;
+    padding-left: 20px;
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+    .news-modal-content {
+        padding: 20px;
+        margin: 20px;
+        width: auto;
+    }
+    
+    .news-modal {
+        padding: 0;
+    }
+}
+/* Research Modal Styles */
+.research-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+}
+
+.research-modal-content {
+    background-color: #fff;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: modalAnimation 0.4s;
+}
+
+.research-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+    z-index: 1;
+}
+
+.research-modal-close:hover {
+    color: #333;
+}
+
+.research-modal h2 {
+    margin-top: 0;
+    color: var(--primary-blue);
+    margin-bottom: 20px;
+    padding-right: 30px;
+}
+
+.research-modal h3 {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: var(--secondary-blue);
+    font-size: 1.3rem;
+}
+
+.research-modal h4 {
+    margin-top: 15px;
+    margin-bottom: 8px;
+    color: var(--primary-blue);
+}
+
+.research-modal-text {
+    line-height: 1.7;
+}
+
+.research-modal-text p {
+    margin-bottom: 15px;
+}
+
+.research-modal-text ul {
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+/* Publication list styles */
+.publications-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.publications-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.publications-list li:last-child {
+    border-bottom: none;
+}
+
+.pub-title {
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 5px;
+}
+
+.pub-authors {
+    font-style: italic;
+    margin-bottom: 3px;
+}
+
+.pub-journal, .pub-conference {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 3px;
+}
+
+.pub-doi {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Project styles */
+.project-item, .conference-item, .grant-item {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.project-item:last-child, .conference-item:last-child, .grant-item:last-child {
+    border-bottom: none;
+}
+
+.project-period, .conference-date, .grant-period, .internship-period {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.project-funding, .conference-location, .grant-amount, .grant-funder, .internship-place, .internship-topic {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.project-item p, .conference-item p, .grant-item p {
+    margin-top: 8px;
+}
+
+.external-link {
+    color: var(--secondary-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.external-link:hover {
+    color: var(--accent-yellow);
+    text-decoration: underline;
+}
+
+/* For mobile devices */
+@media (max-width: 768px) {
+    .research-modal-content {
+        padding: 20px;
+        margin: 20px;
+        width: auto;
+    }
+    
+    .research-modal {
+        padding: 0;
+    }
+}
+</style>
+</head>
+<body>
+<!-- Header -->
+<header>
+    <div class="container header-container">
+        <div class="logo">
+            <img src="images/logotype.png" alt="Logo">
+            <div class="logo-text">Elena Ivanova</div>
+        </div>
+        
+        <nav>
+            <ul class="nav-menu" id="navMenu">
+                <li style="text-align: center;">
+                    <a href="#about" style="display: inline-block;">About</a>
+                </li>
+                <li style="text-align: center;"><a href="#research">Research</a></li>
+                <li style="text-align: center;"><a href="#schedule">Schedule</a></li>
+                <li style="text-align: center;"><a href="#materials">Materials</a></li>
+                <li style="text-align: center;"><a href="#news">News</a></li>
+                <li style="text-align: center;"><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="mobile-menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        
+        <div class="language-switcher">
+            <a href="personalpage.html" class="language-option">RUS</a> |
+            <a href="personalpagekz.html" class="language-option">KAZ</a> |
+            <a href="personalpageen.html" class="language-option active">ENG</a>
+        </div>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <img src="images/logotype2.png" alt="Elena Ivanova" class="hero-image" style="display: block; max-width: 100%; width: auto; height: auto; margin: 0 auto 30px; border: 5px solid #f39c12; border-radius: 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); object-fit: none;">
+            <h1>Elena Ivanova</h1>
+            <p>Senior Lecturer at the Department of Information Computing Systems</p>
+            <p>Specialist in Computer Modeling and Information Technology</p>
+            <a href="#contact" class="cta-button">Book a Consultation</a>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="section">
+    <div class="container">
+        <h2 class="section-title">About</h2>
+        
+        <div class="about-content">
+            <div class="about-text">
+                <p>Welcome to my personal website! I, Elena Vladimirovna Ivanova, am a Senior Lecturer at the Department of Information Computing Systems with more than 15 years of teaching and research experience.</p>
+                
+                <p>My professional activities are focused on computer modeling, machine learning algorithm development, and big data analysis. In my work, I strive to combine deep theoretical knowledge with practical applications, preparing students for real challenges in the rapidly changing field of information technology.</p>
+                
+                <p>In my teaching practice, I follow an interactive approach to learning that stimulates critical thinking and a creative approach to problem-solving. I believe that education should be not only informative but also inspiring, awakening in students the desire to independently explore and discover new things.</p>
+                
+                <p>On this website, you will find information about my research activities, educational materials for the courses I teach, class schedules and consultation hours, as well as contact information. I look forward to collaboration and am open to discussing interesting projects and ideas.</p>
+            </div>
+            
+            <div class="about-info">
+                <div class="info-item">
+                    <strong>Position:</strong> Senior Lecturer
+                </div>
+                <div class="info-item">
+                    <strong>Department:</strong> Information Computing Systems
+                </div>
+                <div class="info-item">
+                    <strong>Experience:</strong> 15+ years
+                </div>
+                <div class="info-item">
+                    <strong>Education:</strong> 
+                    <ul style="list-style-type: disc; margin-left: 20px; margin-top: 5px;">
+                        <li>PhD in Technical Sciences (2010)</li>
+                        <li>Master's in Information Systems (2005)</li>
+                        <li>Bachelor's in Computer Science (2003)</li>
+                    </ul>
+                </div>
+                <div class="info-item">
+                    <strong>Specialization:</strong> Computer Modeling, Machine Learning, Data Analysis
+                </div>
+                <div class="info-item">
+                    <strong>Languages:</strong> Russian, Kazakh, English
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News Section -->
+<section id="news" class="section">
+    <div class="container">
+        <h2 class="section-title">News</h2>
+        
+        <div class="news-list">
+            <div class="news-item">
+                <img src="images/conference.jpg" alt="AI Conference" class="news-image">
+                <div class="news-content">
+                    <span class="news-date">April 10, 2025</span>
+                    <h3 class="news-title">Participation in International Conference on Artificial Intelligence</h3>
+                    <p class="news-excerpt">Last week, I presented a paper on "Application of Deep Learning in Time Series Forecasting" at an international conference in Astana.</p>
+                    <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="news-item">
+                <img src="images/new.jpg" alt="New Publication" class="news-image">
+                <div class="news-content">
+                    <span class="news-date">April 2, 2025</span>
+                    <h3 class="news-title">New Publication in "Data Science Today" Journal</h3>
+                    <p class="news-excerpt">I'm pleased to announce the publication of my article "Optimization of Clustering Algorithms for Big Data Analysis" in an international journal.</p>
+                    <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="news-item">
+                <img src="images/diploma.jpg" alt="Thesis Defense" class="news-image">
+                <div class="news-content">
+                    <span class="news-date">March 25, 2025</span>
+                    <h3 class="news-title">Successful Thesis Defense by Students</h3>
+                    <p class="news-excerpt">Congratulations to the students of group IS-401 for successfully defending their theses! All projects received high marks from the committee.</p>
+                    <a href="#" class="read-more">Read more <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="section" style="background-color: var(--background-gray);">
+    <div class="container">
+        <h2 class="section-title">Contact</h2>
+        
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3 style="margin-bottom: 20px;">Contact Information</h3>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Email</h4>
+                        <p>For students: <a href="mailto:elena.ivanova@edu.kz" style="color: var(--secondary-blue); text-decoration: none;">elena.ivanova@edu.kz</a></p>
+                        <p>For colleagues: <a href="mailto:elene.ivanovoy@gmail.com" style="color: var(--secondary-blue); text-decoration: none;">elene.ivanovoy@gmail.com</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Phone</h4>
+                        <p>Office: +7 (7XX) XXX-XX-XX</p>
+                        <p>Department: +7 (7XX) XXX-XX-XX</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Address</h4>
+                        <p>Astana, University Street, 1</p>
+                        <p>Building A, Room 411</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Consultation Hours</h4>
+                        <p>Friday: 14:00 - 15:30</p>
+                        <p>Book consultations through the contact form or calendar</p>
+                    </div>
+                </div>
+                
+                <div class="social-icons" style="margin-top: 25px;">
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-researchgate"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-google-scholar"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            
+            <div class="contact-form">
+                <h3 style="margin-bottom: 20px;">Contact Form</h3>
+                
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" class="form-control" placeholder="Enter your full name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <select id="subject" class="form-control" required>
+                            <option value="" selected disabled>Select the subject of your inquiry</option>
+                            <option value="consultation">Book a consultation</option>
+                            <option value="question">Question about course material</option>
+                            <option value="project">Collaboration proposal</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" class="form-control" placeholder="Enter your message" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-button">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Consultation Modal -->
+<div class="consultation-modal" id="consultationModal">
+    <div class="modal-content">
+        <div class="modal-close" id="modalClose"><i class="fas fa-times"></i></div>
+        <h3 class="modal-title">Book a Consultation</h3>
+        
+        <div class="consultation-date" id="consultationDate">Date: </div>
+        
+        <div class="consultation-time-slots">
+            <div class="time-slot" data-time="14:00">14:00 - 14:15</div>
+            <div class="time-slot" data-time="14:15">14:15 - 14:30</div>
+            <div class="time-slot" data-time="14:30">14:30 - 14:45</div>
+            <div class="time-slot" data-time="14:45">14:45 - 15:00</div>
+            <div class="time-slot" data-time="15:00">15:00 - 15:15</div>
+            <div class="time-slot" data-time="15:15">15:15 - 15:30</div>
+        </div>
+        
+        <form id="consultationForm">
+            <div class="form-group">
+                <label for="consultName">Full Name</label>
+                <input type="text" id="consultName" class="form-control" placeholder="Enter your full name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="consultEmail">Email</label>
+                <input type="email" id="consultEmail" class="form-control" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="consultGroup">Group</label>
+                <input type="text" id="consultGroup" class="form-control" placeholder="Enter your group" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="consultTopic">Consultation Topic</label>
+                <textarea id="consultTopic" class="form-control" placeholder="Briefly describe the consultation topic" rows="3" required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-button">Book Consultation</button>
+        </form>
+    </div>
+</div>
+
+<!-- Research Section -->
+<section id="research" class="section" style="background-color: var(--background-gray);">
+    <div class="container">
+        <h2 class="section-title">Research Activities</h2>
+        
+        <div class="research-grid">
+            <div class="research-item">
+                <h3>Publications</h3>
+                <p>Author of more than 50 scientific papers in peer-reviewed journals, including international journals and conferences. The main research topics are related to computer modeling of complex systems and the application of machine learning methods for big data analysis.</p>
+                <a href="#" class="read-more">List of Publications <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="research-item">
+                <h3>Projects</h3>
+                <p>Leader and participant in several research projects at the national and international levels. Current projects include the development of a predictive analytics system for industrial enterprises and the creation of intelligent data processing algorithms for medical diagnostics.</p>
+                <a href="#" class="read-more">More about Projects <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="research-item">
+                <h3>Conferences</h3>
+                <p>Regularly participate in international conferences on information technology, artificial intelligence, and data processing. Member of program committees of several specialized conferences and reviewer for scientific journals.</p>
+                <a href="#" class="read-more">Upcoming Presentations <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="research-item">
+                <h3>Grants and Scholarships</h3>
+                <p>Recipient of research grants from the Ministry of Education and Science of Kazakhstan, as well as international foundations. Fulbright Scholar and participant in scientific internships at leading universities worldwide.</p>
+                <a href="#" class="read-more">Grant History <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Schedule Section -->
+<section id="schedule" class="section">
+    <div class="container">
+        <h2 class="section-title">Class Schedule</h2>
+        
+        <div class="schedule-container">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Time</th>
+                        <th>Course</th>
+                        <th>Group</th>
+                        <th>Room</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Monday</td>
+                        <td>09:00 - 10:30</td>
+                        <td>Introduction to Machine Learning</td>
+                        <td>IS-301</td>
+                        <td>A-404</td>
+                        <td>Lecture</td>
+                    </tr>
+                    <tr>
+                        <td>Monday</td>
+                        <td>10:45 - 12:15</td>
+                        <td>Python Programming</td>
+                        <td>IS-201</td>
+                        <td>L-303</td>
+                        <td>Practice</td>
+                    </tr>
+                    <tr>
+                        <td>Tuesday</td>
+                        <td>11:00 - 12:30</td>
+                        <td>Data Analysis</td>
+                        <td>IS-301</td>
+                        <td>A-404</td>
+                        <td>Lecture</td>
+                    </tr>
+                    <tr>
+                        <td>Tuesday</td>
+                        <td>13:00 - 14:30</td>
+                        <td>Data Analysis</td>
+                        <td>IS-301</td>
+                        <td>L-310</td>
+                        <td>Practice</td>
+                    </tr>
+                    <tr>
+                        <td>Thursday</td>
+                        <td>09:00 - 10:30</td>
+                        <td>Introduction to Machine Learning</td>
+                        <td>IS-301</td>
+                        <td>L-308</td>
+                        <td>Practice</td>
+                    </tr>
+                    <tr>
+                        <td>Thursday</td>
+                        <td>13:00 - 14:30</td>
+                        <td>Computer Modeling</td>
+                        <td>IS-401</td>
+                        <td>A-308</td>
+                        <td>Lecture</td>
+                    </tr>
+                    <tr>
+                        <td>Friday</td>
+                        <td>11:00 - 12:30</td>
+                        <td>Computer Modeling</td>
+                        <td>IS-401</td>
+                        <td>L-312</td>
+                        <td>Practice</td>
+                    </tr>
+                    <tr>
+                        <td>Friday</td>
+                        <td>14:00 - 15:30</td>
+                        <td>Consultations</td>
+                        <td>All groups</td>
+                        <td>A-411</td>
+                        <td>Consultation</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div class="calendar-title">Consultation Calendar for April 2025</div>
+                <div class="calendar-nav">
+                    <button class="calendar-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="calendar-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            
+            <div class="calendar-weekdays">
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+                <div>Sun</div>
+            </div>
+            
+            <div class="calendar-days">
+                <div class="calendar-day">1</div>
+                <div class="calendar-day">2</div>
+                <div class="calendar-day">3</div>
+                <div class="calendar-day">4</div>
+                <div class="calendar-day available" data-date="2025-04-05">5</div>
+                <div class="calendar-day">6</div>
+                <div class="calendar-day">7</div>
+                <div class="calendar-day">8</div>
+                <div class="calendar-day">9</div>
+                <div class="calendar-day">10</div>
+                <div class="calendar-day current">11</div>
+                <div class="calendar-day available" data-date="2025-04-12">12</div>
+                <div class="calendar-day">13</div>
+                <div class="calendar-day">14</div>
+                <div class="calendar-day">15</div>
+                <div class="calendar-day">16</div>
+                <div class="calendar-day">17</div>
+                <div class="calendar-day">18</div>
+                <div class="calendar-day available" data-date="2025-04-19">19</div>
+                <div class="calendar-day">20</div>
+                <div class="calendar-day">21</div>
+                <div class="calendar-day">22</div>
+                <div class="calendar-day">23</div>
+                <div class="calendar-day">24</div>
+                <div class="calendar-day">25</div>
+                <div class="calendar-day available" data-date="2025-04-26">26</div>
+                <div class="calendar-day">27</div>
+                <div class="calendar-day">28</div>
+                <div class="calendar-day">29</div>
+                <div class="calendar-day">30</div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 0.9rem;">
+                <span style="display: inline-block; width: 15px; height: 15px; background-color: #d4edda; border-radius: 3px; margin-right: 5px;"></span> Available for booking
+                <span style="display: inline-block; width: 15px; height: 15px; background-color: var(--accent-yellow); border-radius: 3px; margin: 0 5px 0 15px;"></span> Today
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Materials Section -->
+<section id="materials" class="section" style="background-color: var(--background-gray);">
+    <div class="container">
+        <h2 class="section-title">Course Materials</h2>
+        
+        <div class="materials-tabs">
+            <button class="tab-button active" data-tab="lectures">Lectures</button>
+            <button class="tab-button" data-tab="practice">Practical Assignments</button>
+            <button class="tab-button" data-tab="exams">Exam Preparation</button>
+            <button class="tab-button" data-tab="additional">Additional Materials</button>
+        </div>
+        
+        <div id="lectures" class="tab-content active">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Introduction to Machine Learning - Lecture 1: Fundamentals and History</div>
+                        <div class="material-meta">Updated: 01.04.2025 | PDF | 2.4 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Introduction to Machine Learning - Lecture 2: Linear Models</div>
+                        <div class="material-meta">Updated: 08.04.2025 | PDF | 3.1 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-powerpoint"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Data Analysis - Lecture 1: Introduction to Data Analysis</div>
+                        <div class="material-meta">Updated: 02.04.2025 | PPTX | 5.7 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-powerpoint"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Data Analysis - Lecture 2: Data Preprocessing</div>
+                        <div class="material-meta">Updated: 09.04.2025 | PPTX | 4.3 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Computer Modeling - Lecture 1: Modeling Fundamentals</div>
+                        <div class="material-meta">Updated: 04.04.2025 | PDF | 4.8 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="practice" class="tab-content">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Introduction to Machine Learning - Practical Assignment #1</div>
+                        <div class="material-meta">Updated: 03.04.2025 | ZIP | 1.2 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Introduction to Machine Learning - Practical Assignment #2</div>
+                        <div class="material-meta">Updated: 10.04.2025 | ZIP | 1.5 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Data Analysis - Practical Assignment #1</div>
+                        <div class="material-meta">Updated: 04.04.2025 | ZIP | 2.3 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Python Programming - Practical Assignment #1</div>
+                        <div class="material-meta">Updated: 01.04.2025 | PY | 0.5 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="exams" class="tab-content">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Introduction to Machine Learning - Exam Questions</div>
+                        <div class="material-meta">Updated: 05.04.2025 | PDF | 0.3 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Data Analysis - Exam Questions</div>
+                        <div class="material-meta">Updated: 05.04.2025 | PDF | 0.2 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Computer Modeling - Exam Questions</div>
+                        <div class="material-meta">Updated: 05.04.2025 | PDF | 0.3 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Python Programming - Sample Exam Problems</div>
+                        <div class="material-meta">Updated: 06.04.2025 | PDF | 0.5 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="additional" class="tab-content">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Recommended Literature on Machine Learning</div>
+                        <div class="material-meta">Updated: 03.04.2025 | PDF | 0.1 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Useful Online Resources for Data Analysis</div>
+                        <div class="material-meta">Updated: 02.04.2025 | PDF | 0.2 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Video Materials on Python Programming</div>
+                        <div class="material-meta">Updated: 01.04.2025 | HTML | 0.1 MB</div>
+                    </div>
+                    <a href="#" class="material-download">Download <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <!-- News Modals -->
+<div class="news-modal" id="newsModal1">
+    <div class="news-modal-content">
+        <span class="news-modal-close">&times;</span>
+        <h2>Participation in International Conference on Artificial Intelligence</h2>
+        <div class="news-modal-date">April 10, 2025</div>
+        
+        <img src="images/conference.jpg" alt="AI Conference" class="news-modal-image">
+        
+        <div class="news-modal-text">
+            <p>Last week, I presented a paper on "Application of Deep Learning in Time Series Forecasting" at an international conference in Astana.</p>
+            
+            <p>The conference brought together over 200 specialists in the field of artificial intelligence from 15 countries. In my presentation, I shared the results of research conducted jointly with our department's graduate students over the past year.</p>
+            
+            <p>Main points of the presentation:</p>
+            <ul>
+                <li>Using recurrent neural networks for time series analysis</li>
+                <li>Comparative analysis of LSTM and GRU architectures on various datasets</li>
+                <li>Methods for hyperparameter optimization to improve prediction accuracy</li>
+                <li>Practical application of the developed models in industry</li>
+            </ul>
+            
+            <p>The presentation generated significant interest from the audience and sparked subsequent discussion. Particularly valuable was the discussion on regularization methods to combat overfitting of models on small datasets.</p>
+            
+            <p>As a result of the conference, our project was recognized as one of the most promising for practical implementation. Further research in this direction is planned, taking into account the recommendations and comments received.</p>
+        </div>
+    </div>
+</div>
+
+<div class="news-modal" id="newsModal2">
+    <div class="news-modal-content">
+        <span class="news-modal-close">&times;</span>
+        <h2>New Publication in "Data Science Today" Journal</h2>
+        <div class="news-modal-date">April 2, 2025</div>
+        
+        <img src="images/new.jpg" alt="New Publication" class="news-modal-image">
+        
+        <div class="news-modal-text">
+            <p>I'm pleased to announce the publication of my article "Optimization of Clustering Algorithms for Big Data Analysis" in the international journal "Data Science Today".</p>
+            
+            <p>This article is the result of two years of research, during which new methods were developed to improve the performance of clustering algorithms when working with large volumes of data.</p>
+            
+            <p>Key achievements presented in the article:</p>
+            <ul>
+                <li>Development of a modified k-means algorithm with dynamic centroid initialization</li>
+                <li>Creation of a parallel implementation of hierarchical clustering for multiprocessor systems</li>
+                <li>Introduction of data preprocessing techniques that accelerate the clustering process by 45%</li>
+                <li>Experimental validation of the proposed methods on real datasets</li>
+            </ul>
+            
+            <p>The article underwent rigorous peer review and received high marks from experts in the field. The "Data Science Today" journal has an impact factor of 3.8 and is ranked in Q1 for "Computer Science & Artificial Intelligence".</p>
+            
+            <p>The full text of the article is available by subscription in the journal's electronic library. It will be accessible to students and graduate students of the department in the "Scientific Publications" section of the educational portal.</p>
+        </div>
+    </div>
+</div>
+
+<div class="news-modal" id="newsModal3">
+    <div class="news-modal-content">
+        <span class="news-modal-close">&times;</span>
+        <h2>Successful Thesis Defense by Students</h2>
+        <div class="news-modal-date">March 25, 2025</div>
+        
+        <img src="images/diploma.jpg" alt="Thesis Defense" class="news-modal-image">
+        
+        <div class="news-modal-text">
+            <p>Congratulations to the students of group IS-401 for successfully defending their theses! All projects received high marks from the committee.</p>
+            
+            <p>This year, 6 thesis projects were defended under my supervision, all receiving "excellent" grades. I would like to particularly highlight the following works:</p>
+            
+            <ul>
+                <li><strong>Akhmetov Arman</strong> - "Development of an Intelligent Urban Traffic Monitoring System Based on Computer Vision"</li>
+                <li><strong>Sergeeva Elena</strong> - "Creation of a Recommendation System for an Educational Platform Using Machine Learning"</li>
+                <li><strong>Kozlov Dmitry</strong> - "Design and Implementation of a Distributed System for Medical Data Storage and Processing"</li>
+            </ul>
+            
+            <p>Elena Sergeeva's thesis project was noted by the committee chair as having high potential for implementation and was recommended for further development within the master's program.</p>
+            
+            <p>All defended works were distinguished by relevant topics, thorough theoretical foundation, and quality software implementation. The students demonstrated a high level of proficiency in modern technologies and methods for developing information systems.</p>
+            
+            <p>I wish all graduates successful professional paths and hope to see many of them as master's students in our department!</p>
+        </div>
+    </div>
+</div>
+<!-- Research Modals -->
+<div class="research-modal" id="researchModal1">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Scientific Publications</h2>
+        
+        <div class="research-modal-text">
+            <p>During my scientific career, I have published more than 50 scientific papers in peer-reviewed journals, including international journals and conferences. The main research topics are related to computer modeling of complex systems and the application of machine learning methods for big data analysis.</p>
+            
+            <h3>Selected Publications in International Journals:</h3>
+            <ul class="publications-list">
+                <li>
+                    <div class="pub-title">Optimization of Clustering Algorithms for Big Data Analysis</div>
+                    <div class="pub-authors">Ivanova E., Smirnov P., Chen L.</div>
+                    <div class="pub-journal">Data Science Today, 2025; 15(2): 234-251</div>
+                    <div class="pub-doi">DOI: 10.3456/dst.2025.234</div>
+                </li>
+                <li>
+                    <div class="pub-title">Deep Learning Approaches for Time Series Prediction in Industrial Systems</div>
+                    <div class="pub-authors">Ivanova E., Kozlov A.</div>
+                    <div class="pub-journal">Journal of Intelligent Systems, 2024; 42(3): 512-528</div>
+                    <div class="pub-doi">DOI: 10.5678/jis.2024.512</div>
+                </li>
+                <li>
+                    <div class="pub-title">Comparative Analysis of LSTM and GRU Networks for Temporal Data Processing</div>
+                    <div class="pub-authors">Ivanova E., Petrova S., Kim J.</div>
+                    <div class="pub-journal">Neural Computing and Applications, 2023; 35(7): 1102-1118</div>
+                    <div class="pub-doi">DOI: 10.7890/nca.2023.1102</div>
+                </li>
+                <li>
+                    <div class="pub-title">Implementation of Parallel Computing for Advanced Data Processing in Educational Systems</div>
+                    <div class="pub-authors">Ivanova E., Sokolov D.</div>
+                    <div class="pub-journal">International Journal of Educational Technology, 2023; 12(4): 345-359</div>
+                    <div class="pub-doi">DOI: 10.9012/ijet.2023.345</div>
+                </li>
+                <li>
+                    <div class="pub-title">A Novel Approach to Feature Selection for Machine Learning Models</div>
+                    <div class="pub-authors">Li W., Ivanova E., Kumar R.</div>
+                    <div class="pub-journal">Pattern Recognition Letters, 2022; 153: 67-82</div>
+                    <div class="pub-doi">DOI: 10.1234/prl.2022.67</div>
+                </li>
+            </ul>
+            
+            <h3>Conference Proceedings:</h3>
+            <ul class="publications-list">
+                <li>
+                    <div class="pub-title">Adaptive Neural Networks for Real-time Data Processing</div>
+                    <div class="pub-conference">IEEE International Conference on Machine Learning and Applications, 2024, pp. 432-437</div>
+                </li>
+                <li>
+                    <div class="pub-title">Educational Data Mining: Clustering Student Performance Patterns</div>
+                    <div class="pub-conference">International Conference on Educational Technologies, 2023, pp. 145-152</div>
+                </li>
+                <li>
+                    <div class="pub-title">Multi-agent Systems for Distributed Computing in Academic Environments</div>
+                    <div class="pub-conference">ACM Symposium on Computing for Development, 2022, pp. 78-86</div>
+                </li>
+            </ul>
+            
+            <p>A complete list of publications is available through my profiles on <a href="#" class="external-link">Google Scholar</a>, <a href="#" class="external-link">ResearchGate</a>, and <a href="#" class="external-link">ORCID</a>.</p>
+        </div>
+    </div>
+</div>
+
+<div class="research-modal" id="researchModal2">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Research Projects</h2>
+        
+        <div class="research-modal-text">
+            <p>I am a leader and participant in several research projects at the national and international levels. Key areas of work include the development of intelligent data analysis systems and optimization of machine learning algorithms.</p>
+            
+            <h3>Current Projects:</h3>
+            
+            <div class="project-item">
+                <h4>Development of a Predictive Analytics System for Industrial Enterprises</h4>
+                <div class="project-period">2023-2025</div>
+                <div class="project-funding">Grant from the Ministry of Education and Science of Kazakhstan</div>
+                <p>This project aims to create an intelligent data analysis system for predicting emergency situations and optimizing technological processes at industrial facilities. The system being developed uses a combination of machine learning algorithms and statistical methods to process large amounts of data received from IoT devices.</p>
+                <p>Key results:</p>
+                <ul>
+                    <li>Developed architecture for a distributed data collection and processing system</li>
+                    <li>Implemented algorithms for early detection of anomalies in equipment operation</li>
+                    <li>Created a prototype recommendation system for reducing energy consumption</li>
+                </ul>
+            </div>
+            
+            <div class="project-item">
+                <h4>Development of Intelligent Data Processing Algorithms for Medical Diagnostics</h4>
+                <div class="project-period">2024-2026</div>
+                <div class="project-funding">International grant in collaboration with the University of Melbourne</div>
+                <p>This project focuses on developing machine learning algorithms for analyzing medical images and biometric data for early diagnosis of various diseases. Special attention is given to interpretable artificial intelligence methods that allow not only making predictions but also explaining their causes.</p>
+                <p>Current achievements:</p>
+                <ul>
+                    <li>Developed a neural network model for classifying pathologies on X-ray images</li>
+                    <li>Created an algorithm for time series analysis to monitor health indicators</li>
+                </ul>
+            </div>
+            
+            <h3>Completed Projects:</h3>
+            
+            <div class="project-item">
+                <h4>Optimization of Big Data Processing Algorithms for Educational Platforms</h4>
+                <div class="project-period">2021-2023</div>
+                <div class="project-funding">University Internal Grant</div>
+                <p>This project was aimed at developing effective methods for analyzing educational data to improve the quality of learning. Within the project, algorithms for personalizing educational content and predicting academic performance were created.</p>
+                <p>The project results were implemented in the university's educational portal and allowed for an 18% increase in learning effectiveness according to the results of a pilot study.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="research-modal" id="researchModal3">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Conferences and Scientific Events</h2>
+        
+        <div class="research-modal-text">
+            <p>I regularly participate in international conferences on information technology, artificial intelligence, and data processing. I am a member of program committees for several specialized conferences and a reviewer for scientific journals.</p>
+            
+            <h3>Upcoming Presentations:</h3>
+            <div class="conference-item">
+                <h4>International Conference on Data Science and Machine Learning (ICDSML 2025)</h4>
+                <div class="conference-date">May 15-17, 2025</div>
+                <div class="conference-location">Singapore</div>
+                <p>Invited speaker, presentation topic: "Advances in Deep Learning for Time Series Analysis"</p>
+            </div>
+            
+            <div class="conference-item">
+                <h4>Central Asian Symposium on Computational Intelligence</h4>
+                <div class="conference-date">June 3-5, 2025</div>
+                <div class="conference-location">Almaty, Kazakhstan</div>
+                <p>Presenting a paper: "Educational Data Mining: Predictive Models for Student Success"</p>
+            </div>
+            
+            <div class="conference-item">
+                <h4>Summer School on Artificial Intelligence in Education</h4>
+                <div class="conference-date">July 10-15, 2025</div>
+                <div class="conference-location">Nur-Sultan, Kazakhstan</div>
+                <p>Series of lectures for young researchers on the application of machine learning methods in educational systems</p>
+            </div>
+            
+            <h3>Recent Presentations:</h3>
+            <div class="conference-item">
+                <h4>IEEE International Conference on Machine Learning and Applications</h4>
+                <div class="conference-date">December 2024</div>
+                <div class="conference-location">Barcelona, Spain</div>
+                <p>Paper: "Adaptive Neural Networks for Real-time Data Processing"</p>
+            </div>
+            
+            <div class="conference-item">
+                <h4>Asian Conference on Information Systems</h4>
+                <div class="conference-date">October 2024</div>
+                <div class="conference-location">Tokyo, Japan</div>
+                <p>Participation in panel discussion: "Future of AI in Developing Countries"</p>
+            </div>
+            
+            <h3>Program Committee Memberships:</h3>
+            <ul>
+                <li>International Journal of Educational Technology (reviewer)</li>
+                <li>Central Asian Conference on Data Analysis (program committee member)</li>
+                <li>DSMLA 2025: Conference on Data Science and Machine Learning Applications (organizing committee member)</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="research-modal" id="researchModal4">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Grants and Scholarships</h2>
+        
+        <div class="research-modal-text">
+            <p>I am a recipient of several research grants from the Ministry of Education and Science of Kazakhstan, as well as international foundations. Fulbright Scholar and participant in scientific internships at leading universities worldwide.</p>
+            
+            <h3>Current Grants:</h3>
+            <div class="grant-item">
+                <h4>Development of a Predictive Analytics System for Industrial Enterprises</h4>
+                <div class="grant-period">2023-2025</div>
+                <div class="grant-amount">15,000,000 tenge</div>
+                <div class="grant-funder">Ministry of Education and Science of the Republic of Kazakhstan</div>
+                <p>Grant for developing an intelligent system for predicting and preventing emergency situations at industrial facilities using machine learning methods.</p>
+            </div>
+            
+            <div class="grant-item">
+                <h4>International Collaboration in Medical Informatics</h4>
+                <div class="grant-period">2024-2026</div>
+                <div class="grant-amount">$75,000</div>
+                <div class="grant-funder">University of Melbourne & International Research Development Foundation</div>
+                <p>Joint project with the University of Melbourne on developing algorithms for analyzing medical images and biometric data for early disease diagnosis.</p>
+            </div>
+            
+            <h3>Completed Grants:</h3>
+            <div class="grant-item">
+                <h4>Optimization of Big Data Processing Algorithms for Educational Platforms</h4>
+                <div class="grant-period">2021-2023</div>
+                <div class="grant-amount">8,500,000 tenge</div>
+                <div class="grant-funder">University Internal Grant</div>
+                <p>Project on developing effective methods for analyzing educational data, which was successfully implemented in the university's educational portal.</p>
+            </div>
+            
+            <div class="grant-item">
+                <h4>Fulbright Scholarship</h4>
+                <div class="grant-period">2019-2020</div>
+                <div class="grant-funder">Bureau of Educational and Cultural Affairs, U.S. Department of State</div>
+                <p>Research scholarship for conducting scientific work at the University of California, Berkeley. Research topic: "Modern Machine Learning Methods for Time Series Processing".</p>
+            </div>
+            
+            <h3>Scientific Internships:</h3>
+            <ul class="internship-list">
+                <li>
+                    <div class="internship-place">University of California, Berkeley (USA)</div>
+                    <div class="internship-period">2019-2020</div>
+                    <div class="internship-topic">Modern Machine Learning Methods</div>
+                </li>
+                <li>
+                    <div class="internship-place">Technical University of Munich (Germany)</div>
+                    <div class="internship-period">2017</div>
+                    <div class="internship-topic">Intelligent Data Analysis Systems</div>
+                </li>
+                <li>
+                    <div class="internship-place">Nanyang Technological University (Singapore)</div>
+                    <div class="internship-period">2015</div>
+                    <div class="internship-topic">Computer Modeling of Complex Systems</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+    
+    // News modal functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all "Read more" links in the news section
+        const readMoreLinks = document.querySelectorAll('.news-item .read-more');
+        
+        // Add event handlers to each link
+        readMoreLinks.forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const modalId = `newsModal${index + 1}`;
+                document.getElementById(modalId).style.display = 'block';
+                
+                // Block scrolling of the main page
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        // Find all close buttons in modal windows
+        const closeButtons = document.querySelectorAll('.news-modal-close');
+        
+        // Add handlers to close buttons
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.news-modal').style.display = 'none';
+                
+                // Restore scrolling of the main page
+                document.body.style.overflow = 'auto';
+            });
+        });
+        
+        // Close when clicking outside the modal content
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('news-modal')) {
+                e.target.style.display = 'none';
+                
+                // Restore scrolling of the main page
+                document.body.style.overflow = 'auto';
+            }
+        });
+    });
+    
+</script>
+<script>
+    // Research modal functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Find all links in the research section
+        const researchLinks = document.querySelectorAll('.research-item .read-more');
+        
+        // Add event handlers to each link
+        researchLinks.forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const modalId = `researchModal${index + 1}`;
+                document.getElementById(modalId).style.display = 'block';
+                
+                // Block scrolling of the main page
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        // Find all close buttons in modal windows
+        const closeButtons = document.querySelectorAll('.research-modal-close');
+        
+        // Add handlers to close buttons
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.research-modal').style.display = 'none';
+                
+                // Restore scrolling of the main page
+                document.body.style.overflow = 'auto';
+            });
+        });
+        
+        // Close when clicking outside the modal content
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('research-modal')) {
+                e.target.style.display = 'none';
+                
+                // Restore scrolling of the main page
+                document.body.style.overflow = 'auto';
+            }
+        });
+    });
+</script>
+</section>
+
+<!-- Toast Notifications -->
+<div class="toast-notification" id="downloadToast">
+    <div class="toast-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="toast-message">File successfully downloaded!</div>
+    <div class="toast-close"><i class="fas fa-times"></i></div>
+</div>
+
+<div class="toast-notification success" id="consultationToast">
+    <div class="toast-icon">
+        <i class="fas fa-envelope"></i>
+    </div>
+    <div class="toast-message">Consultation booking confirmed! A confirmation has been sent to your email.</div>
+    <div class="toast-close"><i class="fas fa-times"></i></div>
+</div>
+
+<div class="toast-notification success" id="contactToast">
+    <div class="toast-icon">
+        <i class="fas fa-paper-plane"></i>
+    </div>
+    <div class="toast-message">Message sent successfully! A reply will be sent to your email.</div>
+    <div class="toast-close"><i class="fas fa-times"></i></div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <div class="container footer-container">
+        <div class="footer-column">
+            <h3>Elena Ivanova</h3>
+            <p>Senior Lecturer at the Department<br>of Information Computing Systems</p>
+            <div class="social-icons" style="margin-top: 15px;">
+                <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-researchgate"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-google-scholar"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+        
+        <div class="footer-column">
+            <h3>Quick Links</h3>
+            <ul class="footer-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#research">Research</a></li>
+                <li><a href="#schedule">Schedule</a></li>
+                <li><a href="#materials">Materials</a></li>
+                <li><a href="#news">News</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-column">
+            <h3>Don't be afraid of new achievements.                  Explore science, it's very interesting!</h3>
+        </div>
+
+<div class="copyright">
+    &copy; 2025 Personal page of teacher Elena Ivanova | All rights reserverd
+</div>
+</footer>

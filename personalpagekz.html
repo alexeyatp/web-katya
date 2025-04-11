@@ -1,0 +1,2432 @@
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile Menu Toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            document.getElementById('navMenu').classList.toggle('active');
+        });
+        
+        // Materials Tabs
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+        
+        // Display current year in footer
+        const currentYear = new Date().getFullYear();
+        document.querySelector('.copyright').innerHTML = `&copy; ${currentYear} Персональный сайт преподавателя Елены Ивановой | Все права защищены`;
+        
+        // ===== Файл успешно скачан - уведомление =====
+        const downloadLinks = document.querySelectorAll('.material-download');
+        const downloadToast = document.getElementById('downloadToast');
+        
+        downloadLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Get the filename from the material title
+                const materialTitle = this.closest('.material-item').querySelector('.material-title').textContent;
+                
+                // Customize toast message with file name
+                downloadToast.querySelector('.toast-message').textContent = `Файл "${materialTitle}" успешно скачан!`;
+                
+                // Show toast notification
+                downloadToast.classList.add('active');
+                
+                // Auto hide after 4 seconds
+                setTimeout(() => {
+                    downloadToast.classList.remove('active');
+                }, 4000);
+                
+                // You would normally trigger the actual download here
+                console.log(`Downloading: ${materialTitle}`);
+            });
+        });
+        
+        // Закрытие уведомлений по клику на крестик
+        document.querySelectorAll('.toast-close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', function() {
+                this.closest('.toast-notification').classList.remove('active');
+            });
+        });
+        
+        // ===== Обработка формы обратной связи =====
+        const contactForm = document.getElementById('contactForm');
+        const contactToast = document.getElementById('contactToast');
+        
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Simulate form submission
+                const formData = new FormData(contactForm);
+                const formValues = Object.fromEntries(formData.entries());
+                
+                console.log('Form submitted:', formValues);
+                
+                // Show success toast
+                contactToast.classList.add('active');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    contactToast.classList.remove('active');
+                }, 5000);
+                
+                // Reset form
+                contactForm.reset();
+            });
+        }
+        
+        // ===== Запись на консультацию - календарь и модалка =====
+        const availableDays = document.querySelectorAll('.calendar-day.available');
+        const consultationModal = document.getElementById('consultationModal');
+        const modalClose = document.getElementById('modalClose');
+        const consultationDate = document.getElementById('consultationDate');
+        const consultationForm = document.getElementById('consultationForm');
+        const consultationToast = document.getElementById('consultationToast');
+        let selectedDate = '';
+        let selectedTime = '';
+        
+        // Открытие модалки при клике на доступный день
+        availableDays.forEach(day => {
+            day.addEventListener('click', function() {
+                const date = this.getAttribute('data-date');
+                const dayNum = this.textContent.trim();
+                selectedDate = date;
+                
+                // Обновляем дату в модалке
+                consultationDate.textContent = `Дата: ${dayNum} апреля 2025`;
+                
+                // Показываем модалку
+                consultationModal.classList.add('active');
+            });
+        });
+        
+        // Закрытие модалки
+        if (modalClose) {
+            modalClose.addEventListener('click', function() {
+                consultationModal.classList.remove('active');
+            });
+        }
+        
+        // Клик вне модалки для закрытия
+        window.addEventListener('click', function(e) {
+            if (e.target === consultationModal) {
+                consultationModal.classList.remove('active');
+            }
+        });
+        
+        // Выбор времени консультации
+        const timeSlots = document.querySelectorAll('.time-slot');
+        timeSlots.forEach(slot => {
+            slot.addEventListener('click', function() {
+                // Снимаем выделение со всех слотов
+                timeSlots.forEach(s => s.classList.remove('selected'));
+                
+                // Выделяем текущий слот
+                this.classList.add('selected');
+                selectedTime = this.getAttribute('data-time');
+            });
+        });
+        
+        // Обработка формы записи на консультацию
+        if (consultationForm) {
+            consultationForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                if (!selectedTime) {
+                    alert('Пожалуйста, выберите время консультации');
+                    return;
+                }
+                
+                // Simulate form submission
+                const formData = new FormData(consultationForm);
+                formData.append('date', selectedDate);
+                formData.append('time', selectedTime);
+                
+                const formValues = Object.fromEntries(formData.entries());
+                console.log('Consultation booked:', formValues);
+                
+                // Закрываем модалку
+                consultationModal.classList.remove('active');
+                
+                // Показываем успешное уведомление
+                consultationToast.classList.add('active');
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    consultationToast.classList.remove('active');
+                }, 5000);
+                
+                // Reset form
+                consultationForm.reset();
+                timeSlots.forEach(s => s.classList.remove('selected'));
+            });
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                
+                // Пропускаем если это не якорная ссылка
+                if (targetId === '#' || targetId === '') return;
+                
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    document.getElementById('navMenu').classList.remove('active');
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Елена Иванованың жеке сайты</title>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<style>
+:root {
+        --primary-blue: #0f335e;
+        --secondary-blue: #3498db;
+        --accent-yellow: #f39c12;
+        --text-dark: #333;
+        --text-light: #f8f9fa;
+        --background-light: #ffffff;
+        --background-gray: #f8f9fa;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --success-green: #28a745;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Open Sans', sans-serif;
+        color: var(--text-dark);
+        line-height: 1.6;
+        background-color: var(--background-light);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--primary-blue);
+        margin-bottom: 1rem;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Header */
+    header {
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+        padding: 20px 0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: var(--shadow);
+    }
+
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .logo {
+        display: flex;
+        align-items: center;
+    }
+
+    .logo img {
+        width: 60px;
+        height: 60px;
+        margin-right: 15px;
+        border-radius: 50%;
+    }
+
+    .logo-text {
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .nav-menu {
+        display: flex;
+    }
+
+    .nav-menu li {
+        list-style: none;
+        margin-left: 25px;
+    }
+
+    .nav-menu a {
+        color: var(--text-light);
+        text-decoration: none;
+        font-weight: 1000;
+        transition: color 0.3s;
+        align-items: center;
+        text-align: center;
+    }
+
+    .nav-menu a:hover {
+        color: var(--accent-yellow);
+    }
+
+    .mobile-menu-toggle {
+        display: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+        color: var(--text-light);
+        padding: 80px 0;
+        text-align: center;
+    }
+
+    .hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hero h1 {
+        font-size: 2.5rem;
+        color: var(--text-light);
+        margin-bottom: 20px;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+    }
+
+    .hero-image {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 5px solid var(--accent-yellow);
+        margin-bottom: 30px;
+        box-shadow: var(--shadow);
+    }
+
+    .cta-button {
+        display: inline-block;
+        background-color: var(--accent-yellow);
+        color: var(--text-light);
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background-color 0.3s;
+        margin-top: 20px;
+    }
+
+    .cta-button:hover {
+        background-color: #e67e22;
+    }
+
+    /* Sections */
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-title {
+        text-align: center;
+        font-size: 2rem;
+        margin-bottom: 40px;
+        position: relative;
+    }
+
+    .section-title::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 4px;
+        background-color: var(--accent-yellow);
+        margin: 15px auto 0;
+        border-radius: 2px;
+    }
+
+    /* About */
+    .about-content {
+        display: flex;
+        gap: 40px;
+        align-items: flex-start;
+    }
+
+    .about-text {
+        flex: 3;
+    }
+
+    .about-info {
+        flex: 2;
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .info-item {
+        margin-bottom: 15px;
+    }
+
+    .info-item strong {
+        color: var(--primary-blue);
+        margin-right: 10px;
+    }
+
+    /* Research */
+    .research-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .research-item {
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s;
+    }
+
+    .research-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .research-item h3 {
+        color: var(--secondary-blue);
+        margin-bottom: 15px;
+    }
+
+    /* Schedule */
+    .schedule-container {
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        overflow-x: auto;
+    }
+
+    .schedule-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .schedule-table th, .schedule-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .schedule-table th {
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+    }
+
+    .schedule-table tr:nth-child(even) {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    /* Calendar */
+    .calendar-container {
+        background-color: var(--background-gray);
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+        margin-top: 40px;
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .calendar-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--primary-blue);
+    }
+
+    .calendar-nav {
+        display: flex;
+        gap: 10px;
+    }
+
+    .calendar-nav-btn {
+        background-color: var(--secondary-blue);
+        color: var(--text-light);
+        border: none;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .calendar-weekdays {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        text-align: center;
+        font-weight: 600;
+        color: var(--primary-blue);
+        margin-bottom: 10px;
+    }
+
+    .calendar-days {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .calendar-day:hover {
+        background-color: #e0e0e0;
+    }
+
+    .calendar-day.available {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .calendar-day.current {
+        background-color: var(--accent-yellow);
+        color: var(--text-light);
+    }
+
+    /* Materials */
+    .materials-tabs {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #eee;
+    }
+
+    .tab-button {
+        padding: 10px 20px;
+        background: none;
+        border: none;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: color 0.3s;
+        color: var(--text-dark);
+    }
+
+    .tab-button.active {
+        color: var(--secondary-blue);
+        border-bottom: 3px solid var(--accent-yellow);
+    }
+
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    .materials-list {
+        list-style: none;
+    }
+
+    .material-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+        transition: background-color 0.3s;
+    }
+
+    .material-item:hover {
+        background-color: #f0f0f0;
+    }
+
+    .material-icon {
+        font-size: 1.5rem;
+        color: var(--secondary-blue);
+        margin-right: 15px;
+    }
+
+    .material-details {
+        flex-grow: 1;
+    }
+
+    .material-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .material-meta {
+        color: #777;
+        font-size: 0.9rem;
+    }
+
+    .material-download {
+        color: var(--accent-yellow);
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .material-download i {
+        margin-left: 5px;
+    }
+
+    /* News */
+    .news-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+    }
+
+    .news-item {
+        background-color: var(--background-gray);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s;
+    }
+
+    .news-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .news-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .news-content {
+        padding: 20px;
+    }
+
+    .news-date {
+        color: #777;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .news-title {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+        color: var(--primary-blue);
+    }
+
+    .news-excerpt {
+        margin-bottom: 15px;
+    }
+
+    .read-more {
+        color: var(--secondary-blue);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    /* Contact */
+    .contact-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .contact-info {
+        background-color: var(--background-gray);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .contact-icon {
+        font-size: 1.2rem;
+        color: var(--secondary-blue);
+        margin-right: 15px;
+        margin-top: 3px;
+    }
+
+    .contact-details h4 {
+        margin-bottom: 5px;
+    }
+
+    .contact-form {
+        padding: 30px;
+        background-color: var(--background-gray);
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: var(--secondary-blue);
+        outline: none;
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .submit-button {
+        background-color: var(--secondary-blue);
+        color: var(--text-light);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .submit-button:hover {
+        background-color: #2980b9;
+    }
+
+    /* Footer */
+    footer {
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+        padding: 40px 0 20px;
+        margin-top: 60px;
+    }
+
+    .footer-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+    }
+
+    .footer-column h3 {
+        color: var(--text-light);
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+    }
+
+    .footer-links {
+        list-style: none;
+    }
+
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+
+    .footer-links a {
+        color: #bdc3c7;
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .footer-links a:hover {
+        color: var(--accent-yellow);
+    }
+
+    .social-icons {
+        display: flex;
+        gap: 15px;
+    }
+
+    .social-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        color: var(--text-light);
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .social-icon:hover {
+        background-color: var(--accent-yellow);
+    }
+
+    .copyright {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.9rem;
+        color: #bdc3c7;
+    }
+
+    /* Language Switcher */
+    .language-switcher {
+        display: flex;
+        align-items: center;
+        margin-left: 20px;
+    }
+
+    .language-option {
+        margin: 0 5px;
+        color: #bdc3c7;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s;
+    }
+
+    .language-option.active {
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .language-option:hover {
+        color: var(--accent-yellow);
+    }
+    
+    /* Toast Notification */
+    .toast-notification {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background-color: var(--primary-blue);
+        color: var(--text-light);
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        display: flex;
+        align-items: center;
+        z-index: 9999;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: transform 0.4s, opacity 0.4s;
+        min-width: 300px;
+        max-width: 400px;
+    }
+
+    .toast-notification.success {
+        background-color: var(--success-green);
+    }
+
+    .toast-notification.active {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .toast-icon {
+        margin-right: 15px;
+        font-size: 1.5rem;
+        color: var(--accent-yellow);
+    }
+
+    .toast-notification.success .toast-icon {
+        color: white;
+    }
+
+    .toast-message {
+        font-weight: 500;
+        flex-grow: 1;
+    }
+
+    .toast-close {
+        color: rgba(255, 255, 255, 0.7);
+        cursor: pointer;
+        font-size: 1.2rem;
+        margin-left: 10px;
+        transition: color 0.3s;
+    }
+
+    .toast-close:hover {
+        color: white;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 992px) {
+        .about-content {
+            flex-direction: column;
+        }
+        
+        .contact-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .mobile-menu-toggle {
+            display: block;
+        }
+        
+        .nav-menu {
+    position: fixed;
+    top: 80px;
+    left: 0;
+    width: 100%;
+    background-color: var(--primary-blue);
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    transform: translateY(-200%);
+    transition: transform 0.3s;
+    box-shadow: var(--shadow);
+    text-align: center; /* Добавлено выравнивание текста по центру */
+}
+        
+        .nav-menu.active {
+            transform: translateY(0);
+        }
+        
+        .nav-menu li {
+            margin: 15px 0;
+        }
+        
+        .hero h1 {
+            font-size: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .hero-image {
+            width: 1000px;
+            height: 1000px;
+        }
+        
+        .research-grid, .news-list {
+            grid-template-columns: 1fr;
+        }
+
+        .toast-notification {
+            width: 90%;
+            left: 5%;
+            right: 5%;
+            min-width: unset;
+        }
+    }
+
+    /* Консультационная модалка */
+    .consultation-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .consultation-modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 30px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: var(--shadow);
+        position: relative;
+    }
+
+    .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: #777;
+        transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+        color: var(--primary-blue);
+    }
+
+    .modal-title {
+        margin-bottom: 20px;
+        color: var(--primary-blue);
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--accent-yellow);
+        padding-bottom: 10px;
+    }
+
+    .consultation-date {
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .consultation-time-slots {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .time-slot {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .time-slot:hover {
+        border-color: var(--secondary-blue);
+        background-color: rgba(52, 152, 219, 0.1);
+    }
+
+    .time-slot.selected {
+        background-color: var(--secondary-blue);
+        color: white;
+        border-color: var(--secondary-blue);
+    }
+    /* Стили для модальных окон новостей */
+.news-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+}
+
+.news-modal-content {
+    background-color: #fff;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 800px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: modalAnimation 0.4s;
+}
+
+@keyframes modalAnimation {
+    from {opacity: 0; transform: translateY(-30px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.news-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.news-modal-close:hover {
+    color: #333;
+}
+
+.news-modal h2 {
+    margin-top: 0;
+    color: var(--primary-blue);
+    margin-bottom: 10px;
+    padding-right: 30px;
+}
+
+.news-modal-date {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+}
+
+.news-modal-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.news-modal-text {
+    line-height: 1.7;
+}
+
+.news-modal-text p {
+    margin-bottom: 15px;
+}
+
+.news-modal-text ul {
+    margin-bottom: 15px;
+    padding-left: 20px;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    .news-modal-content {
+        padding: 20px;
+        margin: 20px;
+        width: auto;
+    }
+    
+    .news-modal {
+        padding: 0;
+    }
+}
+/* Стили для модальных окон научной деятельности */
+.research-modal {
+    display: none;
+    position: fixed;
+    z-index: 2000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+}
+
+.research-modal-content {
+    background-color: #fff;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 10px;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: modalAnimation 0.4s;
+}
+
+.research-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 25px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s;
+    z-index: 1;
+}
+
+.research-modal-close:hover {
+    color: #333;
+}
+
+.research-modal h2 {
+    margin-top: 0;
+    color: var(--primary-blue);
+    margin-bottom: 20px;
+    padding-right: 30px;
+}
+
+.research-modal h3 {
+    margin-top: 25px;
+    margin-bottom: 15px;
+    color: var(--secondary-blue);
+    font-size: 1.3rem;
+}
+
+.research-modal h4 {
+    margin-top: 15px;
+    margin-bottom: 8px;
+    color: var(--primary-blue);
+}
+
+.research-modal-text {
+    line-height: 1.7;
+}
+
+.research-modal-text p {
+    margin-bottom: 15px;
+}
+
+.research-modal-text ul {
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+
+/* Стили для списка публикаций */
+.publications-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.publications-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.publications-list li:last-child {
+    border-bottom: none;
+}
+
+.pub-title {
+    font-weight: 600;
+    color: var(--primary-blue);
+    margin-bottom: 5px;
+}
+
+.pub-authors {
+    font-style: italic;
+    margin-bottom: 3px;
+}
+
+.pub-journal, .pub-conference {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 3px;
+}
+
+.pub-doi {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Стили для проектов */
+.project-item, .conference-item, .grant-item {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.project-item:last-child, .conference-item:last-child, .grant-item:last-child {
+    border-bottom: none;
+}
+
+.project-period, .conference-date, .grant-period, .internship-period {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.project-funding, .conference-location, .grant-amount, .grant-funder, .internship-place, .internship-topic {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.project-item p, .conference-item p, .grant-item p {
+    margin-top: 8px;
+}
+
+.external-link {
+    color: var(--secondary-blue);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.external-link:hover {
+    color: var(--accent-yellow);
+    text-decoration: underline;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 768px) {
+    .research-modal-content {
+        padding: 20px;
+        margin: 20px;
+        width: auto;
+    }
+    
+    .research-modal {
+        padding: 0;
+    }
+}
+</style>
+</head>
+<body>
+<!-- Header -->
+<header>
+    <div class="container header-container">
+        <div class="logo">
+            <img src="images/logotype.png" alt="Логотип">
+            <div class="logo-text">Елена Иванова</div>
+        </div>
+        
+        <nav>
+            <ul class="nav-menu" id="navMenu">
+                <li style="text-align: center;">
+                    <a href="#about" style="display: inline-block;">Оқытушы туралы</a>
+                  </li>
+
+                <li style="text-align: center;"><a href="#research">Ғылыми қызмет</a></li>
+                <li style="text-align: center;"><a href="#schedule">Сабақ кестесі</a></li>
+                <li style="text-align: center;"><a href="#materials">Оқу материалдары</a></li>
+                <li style="text-align: center;"><a href="#news">Жаңалықтар</a></li>
+                <li style="text-align: center;"><a href="#contact">Байланыс</a></li>
+            </ul>
+            <div class="mobile-menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </nav>
+        
+        <div class="language-switcher">
+            <a href="personalpage.html" class="language-option active">РУС</a> |
+            <a href="personalpagekz.html" class="language-option">ҚАЗ</a> |
+            <a href="personalpageen.html" class="language-option">ENG</a>
+        </div>
+    </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <img src="images/logotype2.png" alt="Елена Иванова" class="hero-image" style="display: block; max-width: 100%; width: auto; height: auto; margin: 0 auto 30px; border: 5px solid #f39c12; border-radius: 0; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); object-fit: none;" class="hero-image">
+            <h1>Елена Иванова</h1>
+            <p>«Ақпараттық есептеу жүйелері» кафедрасының аға оқытушысы</p>
+            <p>Компьютерлік модельдеу және ақпараттық технологиялар саласының маманы</p>
+            <a href="#contact" class="cta-button">Кеңеске жазылу</a>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="section">
+    <div class="container">
+        <h2 class="section-title">Оқытушы туралы</h2>
+        
+        <div class="about-content">
+            <div class="about-text">
+                <p>Менің жеке сайтыма қош келдіңіз! Мен, Елена Владимировна Иванова, 15 жылдан астам оқытушылық және ғылыми-зерттеу қызметі тәжірибесі бар «Ақпараттық есептеу жүйелері» кафедрасының аға оқытушысымын.</p>
+                
+                <p>Менің кәсіби қызметім компьютерлік модельдеуге, машиналық оқыту алгоритмдерін әзірлеуге және үлкен деректерді талдауға бағытталған. Өз жұмысымда мен терең теориялық білімді практикалық қолданумен ұштастыруға тырысамын, бұл студенттерді ақпараттық технологиялар саласындағы тез өзгеретін нақты сын-қатерлерге дайындауға мүмкіндік береді.</p>
+                
+                <p>Өз педагогикалық тәжірибемде мен сыни ойлауды және мәселелерді шешуде шығармашылық көзқарасты ынталандыратын оқытудың интерактивті тәсілін ұстанамын. Білім беру тек ақпараттық емес, сонымен қатар шабыттандыратын, студенттерде өз бетінше зерттеуге және жаңалықтар ашуға деген ұмтылысты оятуы керек деп санаймын.</p>
+                
+                <p>Бұл сайтта сіз менің ғылыми қызметім туралы ақпаратты, оқытылатын пәндер бойынша оқу материалдарын, сабақтар мен кеңестердің кестесін, сондай-ақ байланыс үшін байланыс ақпаратын таба аласыз. Ынтымақтастыққа қуаныштымын және қызықты жобалар мен идеяларды талқылауға ашықпын.</p>
+            </div>
+            
+            <div class="about-info">
+                <div class="info-item">
+                    <strong>Лауазымы:</strong> Аға оқытушы
+                </div>
+                <div class="info-item">
+                    <strong>Кафедра:</strong> Ақпараттық есептеу жүйелері
+                </div>
+                <div class="info-item">
+                    <strong>Өтілі:</strong> 15+ жыл
+                </div>
+                <div class="info-item">
+                    <strong>Білімі:</strong> 
+                    <ul style="list-style-type: disc; margin-left: 20px; margin-top: 5px;">
+                        <li>Техника ғылымдарының кандидаты (2010)</li>
+                        <li>Ақпараттық жүйелер магистрі (2005)</li>
+                        <li>Компьютерлік ғылымдар бакалавры (2003)</li>
+                    </ul>
+                </div>
+                <div class="info-item">
+                    <strong>Мамандануы:</strong> Компьютерлік модельдеу, машиналық оқыту, деректерді талдау
+                </div>
+                <div class="info-item">
+                    <strong>Тілдері:</strong> Орыс, қазақ, ағылшын
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- News Section -->
+<section id="news" class="section">
+    <div class="container">
+        <h2 class="section-title">Жаңалықтар</h2>
+        
+        <div class="news-list">
+            <div class="news-item">
+                <img src="images/conference.jpg" alt="Жасанды интеллект конференциясы" class="news-image" >
+                <div class="news-content">
+                    <span class="news-date">10 сәуір 2025</span>
+                    <h3 class="news-title">Жасанды интеллект бойынша халықаралық конференцияға қатысу</h3>
+                    <p class="news-excerpt">Өткен аптада мен Астанада өткен халықаралық конференцияда "Уақыт қатарларын болжауда терең оқытуды қолдану" тақырыбында баяндама жасадым.</p>
+                    <a href="#" class="read-more">Толығырақ <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="news-item">
+                <img src="images/new.jpg" alt="Жаңа жарияланым" class="news-image">
+                <div class="news-content">
+                    <span class="news-date">2 сәуір 2025</span>
+                    <h3 class="news-title">"Data Science Today" журналындағы жаңа жарияланым</h3>
+                    <p class="news-excerpt">"Үлкен деректерді талдау үшін кластерлеу алгоритмдерін оңтайландыру" атты мақаламның халықаралық журналда жарияланғанын хабарлауға қуаныштымын.</p>
+                    <a href="#" class="read-more">Толығырақ <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
+            <div class="news-item">
+                <img src="images/diploma.jpg" alt="Дипломдық жұмыстарды қорғау" class="news-image">
+                <div class="news-content">
+                    <span class="news-date">25 наурыз 2025</span>
+                    <h3 class="news-title">Студенттердің дипломдық жобаларын сәтті қорғауы</h3>
+                    <p class="news-excerpt">ИС-401 тобының студенттерін дипломдық жобаларды сәтті қорғауымен құттықтаймын! Барлық жұмыстар комиссиядан жоғары баға алды.</p>
+                    <a href="#" class="read-more">Толығырақ <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section id="contact" class="section" style="background-color: var(--background-gray);">
+    <div class="container">
+        <h2 class="section-title">Байланыс</h2>
+        
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3 style="margin-bottom: 20px;">Байланыс ақпараты</h3>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Email</h4>
+                        <p>Студенттер үшін: <a href="mailto:elena.ivanova@edu.kz" style="color: var(--secondary-blue); text-decoration: none;">elena.ivanova@edu.kz</a></p>
+                        <p>Әріптестер үшін: <a href="mailto:elene.ivanovoy@gmail.com" style="color: var(--secondary-blue); text-decoration: none;">elene.ivanovoy@gmail.com</a></p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Телефон</h4>
+                        <p>Жұмыс: +7 (7XX) XXX-XX-XX</p>
+                        <p>Кафедра: +7 (7XX) XXX-XX-XX</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Мекенжай</h4>
+                        <p>Астана қ., Университет көшесі, 1</p>
+                        <p>А корпусы, 411 кабинет</p>
+                    </div>
+                </div>
+                
+                <div class="contact-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Кеңес беру уақыты</h4>
+                        <p>Жұма: 14:00 - 15:30</p>
+                        <p>Кеңеске кері байланыс формасы немесе күнтізбе арқылы жазылу</p>
+                    </div>
+                </div>
+
+                <div class="social-icons" style="margin-top: 25px;">
+                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-researchgate"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-google-scholar"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        
+        <div class="contact-form">
+                <h3 style="margin-bottom: 20px;">Кері байланыс формасы</h3>
+                
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Аты-жөні</label>
+                        <input type="text" id="name" class="form-control" placeholder="Толық атыңызды енгізіңіз" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Электрондық пошта</label>
+                        <input type="email" id="email" class="form-control" placeholder="Электрондық поштаңызды енгізіңіз" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Тақырып</label>
+                        <select id="subject" class="form-control" required>
+                            <option value="" selected disabled>Өтініш тақырыбын таңдаңыз</option>
+                            <option value="consultation">Кеңеске жазылу</option>
+                            <option value="question">Оқу материалдары бойынша сұрақ</option>
+                            <option value="project">Ынтымақтастық ұсынысы</option>
+                            <option value="other">Басқа</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Хабарлама</label>
+                        <textarea id="message" class="form-control" placeholder="Хабарламаңызды енгізіңіз" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-button">Хабарлама жіберу</button>
+                </form>                
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Кеңес модальдық терезесі -->
+<div class="consultation-modal" id="consultationModal">
+    <div class="modal-content">
+        <div class="modal-close" id="modalClose"><i class="fas fa-times"></i></div>
+        <h3 class="modal-title">Кеңеске жазылу</h3>
+        
+        <div class="consultation-date" id="consultationDate">Күні: </div>
+        
+        <div class="consultation-time-slots">
+            <div class="time-slot" data-time="14:00">14:00 - 14:15</div>
+            <div class="time-slot" data-time="14:15">14:15 - 14:30</div>
+            <div class="time-slot" data-time="14:30">14:30 - 14:45</div>
+            <div class="time-slot" data-time="14:45">14:45 - 15:00</div>
+            <div class="time-slot" data-time="15:00">15:00 - 15:15</div>
+            <div class="time-slot" data-time="15:15">15:15 - 15:30</div>
+        </div>
+        
+        <form id="consultationForm">
+            <div class="form-group">
+                <label for="consultName">Аты-жөні</label>
+                <input type="text" id="consultName" class="form-control" placeholder="Толық атыңызды енгізіңіз" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="consultEmail">Email</label>
+                <input type="email" id="consultEmail" class="form-control" placeholder="Email-ді енгізіңіз" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="consultGroup">Тобы</label>
+                <input type="text" id="consultGroup" class="form-control" placeholder="Тобыңызды енгізіңіз" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="consultTopic">Кеңес тақырыбы</label>
+                <textarea id="consultTopic" class="form-control" placeholder="Кеңес тақырыбын қысқаша сипаттаңыз" rows="3" required></textarea>
+            </div>
+            
+            <button type="submit" class="submit-button">Кеңеске жазылу</button>
+        </form>
+    </div>
+</div>
+
+<!-- Toast хабарландырулары -->
+<div class="toast-notification" id="downloadToast">
+    <div class="toast-icon">
+        <i class="fas fa-check-circle"></i>
+    </div>
+    <div class="toast-message">Файл сәтті жүктелді!</div>
+    <div class="toast-close"><i class="fas fa-times"></i></div>
+</div>
+
+<div class="toast-notification success" id="consultationToast">
+    <div class="toast-icon">
+        <i class="fas fa-envelope"></i>
+    </div>
+    <div class="toast-message">Кеңеске жазылу қабылданды! Растау электрондық поштаңызға жіберілді.</div>
+    <div class="toast-close"><i class="fas fa-times"></i></div>
+</div>
+
+<div class="toast-notification success" id="contactToast">
+    <div class="toast-icon">
+        <i class="fas fa-paper-plane"></i>
+    </div>
+    <div class="toast-message">Хабарлама сәтті жіберілді! Жауап көрсетілген электрондық поштаға келеді.</div>
+    <div class="toast-close"><i class="fas fa-times"></i></div>
+</div>
+
+
+<!-- Ғылыми қызмет бөлімі -->
+<section id="research" class="section" style="background-color: var(--background-gray);">
+    <div class="container">
+        <h2 class="section-title">Ғылыми қызмет</h2>
+        
+        <div class="research-grid">
+            <div class="research-item">
+                <h3>Жарияланымдар</h3>
+                <p>Халықаралық журналдар мен конференцияларды қоса алғанда, рецензияланатын басылымдарда 50-ден астам ғылыми жұмыстың авторы. Зерттеудің негізгі тақырыптары күрделі жүйелердің компьютерлік модельдеуімен және үлкен деректерді талдау үшін машиналық оқыту әдістерін қолданумен байланысты.</p>
+                <a href="#" class="read-more">Жарияланымдар тізімі <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="research-item">
+                <h3>Жобалар</h3>
+                <p>Ұлттық және халықаралық деңгейдегі бірнеше зерттеу жобаларының жетекшісі және қатысушысы. Ағымдағы жобалар өнеркәсіптік кәсіпорындар үшін болжамды талдау жүйесін әзірлеуді және медициналық диагностика үшін деректерді өңдеудің интеллектуалды алгоритмдерін құруды қамтиды.</p>
+                <a href="#" class="read-more">Жобалар туралы толығырақ <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="research-item">
+                <h3>Конференциялар</h3>
+                <p>Ақпараттық технологиялар, жасанды интеллект және деректерді өңдеу бойынша халықаралық конференцияларға үнемі қатысамын. Бірнеше бейінді конференциялардың бағдарламалық комитеттерінің мүшесі және ғылыми журналдардың рецензенті болып табыламын.</p>
+                <a href="#" class="read-more">Алдағы баяндамалар <i class="fas fa-arrow-right"></i></a>
+            </div>
+            
+            <div class="research-item">
+                <h3>Гранттар мен стипендиялар</h3>
+                <p>Қазақстан Республикасының Білім және ғылым министрлігінен, сондай-ақ халықаралық қорлардан ғылыми зерттеулерге арналған гранттар алушы. Фулбрайт бағдарламасының стипендиаты және әлемнің жетекші университеттерінде ғылыми тағылымдамалардың қатысушысы.</p>
+                <a href="#" class="read-more">Гранттар тарихы <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Сабақ кестесі бөлімі -->
+<section id="schedule" class="section">
+    <div class="container">
+        <h2 class="section-title">Сабақ кестесі</h2>
+        
+        <div class="schedule-container">
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Күн</th>
+                        <th>Уақыт</th>
+                        <th>Пән</th>
+                        <th>Топ</th>
+                        <th>Аудитория</th>
+                        <th>Түрі</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Дүйсенбі</td>
+                        <td>09:00 - 10:30</td>
+                        <td>Машиналық оқытуға кіріспе</td>
+                        <td>ИС-301</td>
+                        <td>А-404</td>
+                        <td>Дәріс</td>
+                    </tr>
+                    <tr>
+                        <td>Дүйсенбі</td>
+                        <td>10:45 - 12:15</td>
+                        <td>Python тілінде бағдарламалау</td>
+                        <td>ИС-201</td>
+                        <td>Л-303</td>
+                        <td>Практика</td>
+                    </tr>
+                    <tr>
+                        <td>Сейсенбі</td>
+                        <td>11:00 - 12:30</td>
+                        <td>Деректерді талдау</td>
+                        <td>ИС-301</td>
+                        <td>А-404</td>
+                        <td>Дәріс</td>
+                    </tr>
+                    <tr>
+                        <td>Сейсенбі</td>
+                        <td>13:00 - 14:30</td>
+                        <td>Деректерді талдау</td>
+                        <td>ИС-301</td>
+                        <td>Л-310</td>
+                        <td>Практика</td>
+                    </tr>
+                    <tr>
+                        <td>Бейсенбі</td>
+                        <td>09:00 - 10:30</td>
+                        <td>Машиналық оқытуға кіріспе</td>
+                        <td>ИС-301</td>
+                        <td>Л-308</td>
+                        <td>Практика</td>
+                    </tr>
+                    <tr>
+                        <td>Бейсенбі</td>
+                        <td>13:00 - 14:30</td>
+                        <td>Компьютерлік модельдеу</td>
+                        <td>ИС-401</td>
+                        <td>А-308</td>
+                        <td>Дәріс</td>
+                    </tr>
+                    <tr>
+                        <td>Жұма</td>
+                        <td>11:00 - 12:30</td>
+                        <td>Компьютерлік модельдеу</td>
+                        <td>ИС-401</td>
+                        <td>Л-312</td>
+                        <td>Практика</td>
+                    </tr>
+                    <tr>
+                        <td>Жұма</td>
+                        <td>14:00 - 15:30</td>
+                        <td>Кеңес беру</td>
+                        <td>Барлық топтар</td>
+                        <td>А-411</td>
+                        <td>Кеңес беру</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="calendar-container">
+            <div class="calendar-header">
+                <div class="calendar-title">2025 жылдың сәуір айына арналған кеңес күнтізбесі</div>
+                <div class="calendar-nav">
+                    <button class="calendar-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                    <button class="calendar-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            
+            <div class="calendar-weekdays">
+                <div>Дс</div>
+                <div>Сс</div>
+                <div>Ср</div>
+                <div>Бс</div>
+                <div>Жм</div>
+                <div>Сб</div>
+                <div>Жк</div>
+            </div>
+            
+            <div class="calendar-days">
+                <div class="calendar-day">1</div>
+                <div class="calendar-day">2</div>
+                <div class="calendar-day">3</div>
+                <div class="calendar-day">4</div>
+                <div class="calendar-day available" data-date="2025-04-05">5</div>
+                <div class="calendar-day">6</div>
+                <div class="calendar-day">7</div>
+                <div class="calendar-day">8</div>
+                <div class="calendar-day">9</div>
+                <div class="calendar-day">10</div>
+                <div class="calendar-day current">11</div>
+                <div class="calendar-day available" data-date="2025-04-12">12</div>
+                <div class="calendar-day">13</div>
+                <div class="calendar-day">14</div>
+                <div class="calendar-day">15</div>
+                <div class="calendar-day">16</div>
+                <div class="calendar-day">17</div>
+                <div class="calendar-day">18</div>
+                <div class="calendar-day available" data-date="2025-04-19">19</div>
+                <div class="calendar-day">20</div>
+                <div class="calendar-day">21</div>
+                <div class="calendar-day">22</div>
+                <div class="calendar-day">23</div>
+                <div class="calendar-day">24</div>
+                <div class="calendar-day">25</div>
+                <div class="calendar-day available" data-date="2025-04-26">26</div>
+                <div class="calendar-day">27</div>
+                <div class="calendar-day">28</div>
+                <div class="calendar-day">29</div>
+                <div class="calendar-day">30</div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+                <div class="calendar-day"></div>
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 0.9rem;">
+                <span style="display: inline-block; width: 15px; height: 15px; background-color: #d4edda; border-radius: 3px; margin-right: 5px;"></span> Жазылуға қол жетімді
+                <span style="display: inline-block; width: 15px; height: 15px; background-color: var(--accent-yellow); border-radius: 3px; margin: 0 5px 0 15px;"></span> Бүгін
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Оқу материалдары бөлімі -->
+<section id="materials" class="section" style="background-color: var(--background-gray);">
+    <div class="container">
+        <h2 class="section-title">Оқу материалдары</h2>
+        
+        <div class="materials-tabs">
+            <button class="tab-button active" data-tab="lectures">Дәрістер</button>
+            <button class="tab-button" data-tab="practice">Практикалық тапсырмалар</button>
+            <button class="tab-button" data-tab="exams">Емтиханға дайындық</button>
+            <button class="tab-button" data-tab="additional">Қосымша материалдар</button>
+        </div>
+        
+        <div id="lectures" class="tab-content active">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Машиналық оқытуға кіріспе - Дәріс 1: Негіздер мен тарих</div>
+                        <div class="material-meta">Жаңартылған: 01.04.2025 | PDF | 2.4 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Машиналық оқытуға кіріспе - Дәріс 2: Сызықтық модельдер</div>
+                        <div class="material-meta">Жаңартылған: 08.04.2025 | PDF | 3.1 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-powerpoint"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Деректерді талдау - Дәріс 1: Деректерді талдауға кіріспе</div>
+                        <div class="material-meta">Жаңартылған: 02.04.2025 | PPTX | 5.7 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-powerpoint"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Деректерді талдау - Дәріс 2: Деректерді алдын ала өңдеу</div>
+                        <div class="material-meta">Жаңартылған: 09.04.2025 | PPTX | 4.3 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-pdf"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Компьютерлік модельдеу - Дәріс 1: Модельдеу негіздері</div>
+                        <div class="material-meta">Жаңартылған: 04.04.2025 | PDF | 4.8 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="practice" class="tab-content">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Машиналық оқытуға кіріспе - Практикалық жұмыс №1</div>
+                        <div class="material-meta">Жаңартылған: 03.04.2025 | ZIP | 1.2 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Машиналық оқытуға кіріспе - Практикалық жұмыс №2</div>
+                        <div class="material-meta">Жаңартылған: 10.04.2025 | ZIP | 1.5 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Деректерді талдау - Практикалық жұмыс №1</div>
+                        <div class="material-meta">Жаңартылған: 04.04.2025 | ZIP | 2.3 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+                
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-code"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Python тілінде бағдарламалау бойынша бейне материалдар</div>
+                        <div class="material-meta">Жаңартылған: 01.04.2025 | HTML | 0.1 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+        <div id="exams" class="tab-content">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Машиналық оқытуға кіріспе – Емтихан сұрақтары</div>
+                        <div class="material-meta">Жаңартылған күні: 05.04.2025 | PDF | 0.3 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+        
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Деректерді талдау – Емтихан сұрақтары</div>
+                        <div class="material-meta">Жаңартылған күні: 05.04.2025 | PDF | 0.2 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+        
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Компьютерлік модельдеу – Емтихан сұрақтары</div>
+                        <div class="material-meta">Жаңартылған күні: 05.04.2025 | PDF | 0.3 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+        
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Python бағдарламалау – Емтихан тапсырмаларының мысалдары</div>
+                        <div class="material-meta">Жаңартылған күні: 06.04.2025 | PDF | 0.5 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+        
+        <div id="additional" class="tab-content">
+            <ul class="materials-list">
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Машиналық оқыту бойынша ұсынылған әдебиеттер</div>
+                        <div class="material-meta">Жаңартылған күні: 03.04.2025 | PDF | 0.1 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+        
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Деректерді талдауды үйренуге арналған пайдалы онлайн-ресурстар</div>
+                        <div class="material-meta">Жаңартылған күні: 02.04.2025 | PDF | 0.2 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+        
+                <li class="material-item">
+                    <div class="material-icon">
+                        <i class="fas fa-video"></i>
+                    </div>
+                    <div class="material-details">
+                        <div class="material-title">Python бағдарламалауы бойынша бейнематериалдар</div>
+                        <div class="material-meta">Жаңартылған күні: 01.04.2025 | HTML | 0.1 МБ</div>
+                    </div>
+                    <a href="#" class="material-download">Жүктеу <i class="fas fa-download"></i></a>
+                </li>
+            </ul>
+        </div>
+        
+    <!-- Жаңалықтар модальды терезелері -->
+<div class="news-modal" id="newsModal1">
+    <div class="news-modal-content">
+        <span class="news-modal-close">&times;</span>
+        <h2>Жасанды интеллект бойынша халықаралық конференцияға қатысу</h2>
+        <div class="news-modal-date">10 сәуір 2025</div>
+        
+        <img src="images/conference.jpg" alt="Жасанды интеллект конференциясы" class="news-modal-image">
+        
+        <div class="news-modal-text">
+            <p>Өткен аптада мен Астанада өткен халықаралық конференцияда "Уақыт қатарларын болжауда терең оқытуды қолдану" тақырыбында баяндама жасадым.</p>
+            
+            <p>Конференцияға әлемнің 15 елінен жасанды интеллект саласындағы 200-ден астам маман қатысты. Өз баяндамамда мен кафедраның аспиранттарымен бірге соңғы жылы жүргізілген зерттеу нәтижелерін ұсындым.</p>
+            
+            <p>Баяндаманың негізгі тезистері:</p>
+            <ul>
+                <li>Уақыт қатарларын талдау үшін рекурренттік нейрондық желілерді қолдану</li>
+                <li>Әртүрлі деректер жиынтықтарында LSTM және GRU архитектураларын салыстырмалы талдау</li>
+                <li>Болжамдар дәлдігін арттыру үшін гиперпараметрлерді оңтайландыру әдістері</li>
+                <li>Әзірленген модельдерді өнеркәсіпте практикалық қолдану</li>
+            </ul>
+            
+            <p>Баяндама аудиторияның үлкен қызығушылығын тудырды және кейінгі талқылауға әкелді. Әсіресе, деректердің аз жинақтарында модельдердің артық оқытуымен күресуге арналған реттеу әдістерін талқылау өте құнды болды.</p>
+            
+            <p>Конференция қорытындысы бойынша біздің жобамыз практикалық енгізу үшін ең перспективалы жобалардың бірі ретінде атап өтілді. Алынған ұсыныстар мен пікірлерді ескере отырып, осы бағытта зерттеулерді жалғастыру жоспарлануда.</p>
+        </div>
+    </div>
+</div>
+
+<div class="news-modal" id="newsModal2">
+    <div class="news-modal-content">
+        <span class="news-modal-close">&times;</span>
+        <h2>"Data Science Today" журналындағы жаңа жарияланым</h2>
+        <div class="news-modal-date">2 сәуір 2025</div>
+        
+        <img src="images/new.jpg" alt="Жаңа жарияланым" class="news-modal-image">
+        
+        <div class="news-modal-text">
+            <p>"Data Science Today" халықаралық журналында "Үлкен деректерді талдау үшін кластерлеу алгоритмдерін оңтайландыру" атты мақаламның жарияланғанын хабарлауға қуаныштымын.</p>
+            
+            <p>Мақала екі жылдық зерттеудің нәтижесі болып табылады, оның шеңберінде үлкен көлемді деректермен жұмыс істеу кезінде кластерлеу алгоритмдерінің өнімділігін жақсартудың жаңа әдістері әзірленді.</p>
+            
+            <p>Мақалада ұсынылған негізгі жетістіктер:</p>
+            <ul>
+                <li>Центроидтардың динамикалық инициализациясы бар модификацияланған k-means алгоритмін әзірлеу</li>
+                <li>Көп процессорлы жүйелерге арналған иерархиялық кластерлеудің параллель іске асырылуын құру</li>
+                <li>Кластерлеу процесін 45% жылдамдататын деректерді алдын ала өңдеу техникаларын енгізу</li>
+                <li>Ұсынылған әдістердің тиімділігін нақты деректер жинақтарында эксперименттік растау</li>
+            </ul>
+            
+            <p>Мақала қатаң рецензиялаудан өтіп, сала сарапшыларынан жоғары бағаларға ие болды. "Data Science Today" журналының импакт-факторы 3.8 және "Computer Science & Artificial Intelligence" бағыты бойынша Q1-ге кіреді.</p>
+            
+            <p>Мақаланың толық мәтіні журналдың электрондық кітапханасында жазылым бойынша қол жетімді. Кафедраның студенттері мен аспиранттарына ол білім беру порталындағы "Ғылыми жарияланымдар" бөлімінде қол жетімді болады.</p>
+        </div>
+    </div>
+</div>
+
+<div class="news-modal" id="newsModal3">
+    <div class="news-modal-content">
+        <span class="news-modal-close">&times;</span>
+        <h2>Студенттердің дипломдық жобаларын сәтті қорғауы</h2>
+        <div class="news-modal-date">25 наурыз 2025</div>
+        
+        <img src="images/diploma.jpg" alt="Дипломдық жұмыстарды қорғау" class="news-modal-image">
+        
+        <div class="news-modal-text">
+            <p>ИС-401 тобының студенттерін дипломдық жобаларды сәтті қорғауымен құттықтаймын! Барлық жұмыстар комиссиядан жоғары баға алды.</p>
+            
+            <p>Биыл менің жетекшілігіммен 6 дипломдық жоба қорғалды, олардың барлығы "өте жақсы" деген бағаға ие болды. Келесі жұмыстарды ерекше атап өткім келеді:</p>
+            
+            <ul>
+                <li><strong>Ахметов Арман</strong> - "Компьютерлік көру негізінде қалалық трафикті бақылаудың интеллектуалды жүйесін әзірлеу"</li>
+                <li><strong>Сергеева Елена</strong> - "Машиналық оқытуды қолдана отырып, білім беру платформасы үшін ұсыныс жүйесін құру"</li>
+                <li><strong>Козлов Дмитрий</strong> - "Медициналық деректерді сақтау және өңдеу үшін таратылған жүйені жобалау және іске асыру"</li>
+            </ul>
+            
+            <p>Сергеева Елена дипломдық жобасы комиссия төрағасы тарапынан енгізу үшін жоғары әлеуетке ие ретінде атап өтілді және магистрлік бағдарлама аясында одан әрі дамуға ұсынылды.</p>
+            
+            <p>Барлық қорғалған жұмыстар тақырыптың өзектілігімен, теориялық базаның терең өңделуімен және сапалы бағдарламалық іске асырылуымен ерекшеленді. Студенттер ақпараттық жүйелерді әзірлеудің заманауи технологиялары мен әдістерін меңгерудің жоғары деңгейін көрсетті.</p>
+            
+            <p>Барлық түлектерге табысты кәсіби жол тілеймін және олардың көпшілігін кафедрамыздың магистранттары ретінде көруге үміттенемін!</p>
+        </div>
+    </div>
+</div>
+<!-- Ғылыми қызмет модальдық терезелері -->
+<div class="research-modal" id="researchModal1">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Ғылыми жарияланымдар</h2>
+        
+        <div class="research-modal-text">
+            <p>Ғылыми қызмет кезеңінде мен халықаралық журналдар мен конференцияларды қоса алғанда, рецензияланатын басылымдарда 50-ден астам ғылыми жұмыс жарияладым. Зерттеудің негізгі тақырыптары күрделі жүйелердің компьютерлік модельдеуімен және үлкен деректерді талдау үшін машиналық оқыту әдістерін қолданумен байланысты.</p>
+            
+            <h3>Халықаралық журналдардағы таңдаулы жарияланымдар:</h3>
+            <ul class="publications-list">
+                <li>
+                    <div class="pub-title">Optimization of Clustering Algorithms for Big Data Analysis</div>
+                    <div class="pub-authors">Ivanova E., Smirnov P., Chen L.</div>
+                    <div class="pub-journal">Data Science Today, 2025; 15(2): 234-251</div>
+                    <div class="pub-doi">DOI: 10.3456/dst.2025.234</div>
+                </li>
+                <li>
+                    <div class="pub-title">Deep Learning Approaches for Time Series Prediction in Industrial Systems</div>
+                    <div class="pub-authors">Ivanova E., Kozlov A.</div>
+                    <div class="pub-journal">Journal of Intelligent Systems, 2024; 42(3): 512-528</div>
+                    <div class="pub-doi">DOI: 10.5678/jis.2024.512</div>
+                </li>
+                <li>
+                    <div class="pub-title">Comparative Analysis of LSTM and GRU Networks for Temporal Data Processing</div>
+                    <div class="pub-authors">Ivanova E., Petrova S., Kim J.</div>
+                    <div class="pub-journal">Neural Computing and Applications, 2023; 35(7): 1102-1118</div>
+                    <div class="pub-doi">DOI: 10.7890/nca.2023.1102</div>
+                </li>
+                <li>
+                    <div class="pub-title">Implementation of Parallel Computing for Advanced Data Processing in Educational Systems</div>
+                    <div class="pub-authors">Ivanova E., Sokolov D.</div>
+                    <div class="pub-journal">International Journal of Educational Technology, 2023; 12(4): 345-359</div>
+                    <div class="pub-doi">DOI: 10.9012/ijet.2023.345</div>
+                </li>
+                <li>
+                    <div class="pub-title">A Novel Approach to Feature Selection for Machine Learning Models</div>
+                    <div class="pub-authors">Li W., Ivanova E., Kumar R.</div>
+                    <div class="pub-journal">Pattern Recognition Letters, 2022; 153: 67-82</div>
+                    <div class="pub-doi">DOI: 10.1234/prl.2022.67</div>
+                </li>
+            </ul>
+            
+            <h3>Конференция еңбектері:</h3>
+            <ul class="publications-list">
+                <li>
+                    <div class="pub-title">Adaptive Neural Networks for Real-time Data Processing</div>
+                    <div class="pub-conference">IEEE International Conference on Machine Learning and Applications, 2024, pp. 432-437</div>
+                </li>
+                <li>
+                    <div class="pub-title">Educational Data Mining: Clustering Student Performance Patterns</div>
+                    <div class="pub-conference">International Conference on Educational Technologies, 2023, pp. 145-152</div>
+                </li>
+                <li>
+                    <div class="pub-title">Multi-agent Systems for Distributed Computing in Academic Environments</div>
+                    <div class="pub-conference">ACM Symposium on Computing for Development, 2022, pp. 78-86</div>
+                </li>
+            </ul>
+            
+            <p>Жарияланымдардың толық тізімі <a href="#" class="external-link">Google Scholar</a>, <a href="#" class="external-link">ResearchGate</a> және <a href="#" class="external-link">ORCID</a> жүйелеріндегі менің профилім арқылы қол жетімді.</p>
+        </div>
+    </div>
+</div>
+
+<div class="research-modal" id="researchModal2">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Зерттеу жобалары</h2>
+        
+        <div class="research-modal-text">
+            <p>Мен ұлттық және халықаралық деңгейдегі бірнеше зерттеу жобаларының жетекшісі және қатысушысы болып табыламын. Жұмыстың негізгі бағыттары деректерді талдаудың зияткерлік жүйелерін әзірлеуді және машиналық оқыту алгоритмдерін оңтайландыруды қамтиды.</p>
+            
+            <h3>Ағымдағы жобалар:</h3>
+            
+            <div class="project-item">
+                <h4>Өнеркәсіптік кәсіпорындар үшін болжамды талдау жүйесін әзірлеу</h4>
+                <div class="project-period">2023-2025</div>
+                <div class="project-funding">Қазақстан Республикасы Білім және ғылым министрлігінің гранты</div>
+                <p>Жоба өнеркәсіптік объектілерде апаттық жағдайларды болжау және технологиялық процестерді оңтайландыру үшін деректерді талдаудың зияткерлік жүйесін құруға бағытталған. Әзірленіп жатқан жүйе IoT-құрылғыларынан келетін деректердің үлкен массивтерін өңдеу үшін машиналық оқыту алгоритмдері мен статистикалық әдістердің комбинациясын пайдаланады.</p>
+                <p>Негізгі нәтижелер:</p>
+                <ul>
+                    <li>Деректерді жинау және өңдеудің таратылған жүйесінің архитектурасы әзірленді</li>
+                    <li>Жабдықтың жұмысындағы ауытқуларды ерте анықтау алгоритмдері жүзеге асырылды</li>
+                    <li>Энергия тұтынуды төмендету үшін ұсыныс жүйесінің прототипі жасалды</li>
+                </ul>
+            </div>
+            
+            <div class="project-item">
+                <h4>Медициналық диагностика үшін деректерді өңдеудің зияткерлік алгоритмдерін құру</h4>
+                <div class="project-period">2024-2026</div>
+                <div class="project-funding">Мельбурн университетімен ынтымақтастықта халықаралық грант</div>
+                <p>Жоба әртүрлі ауруларды ерте диагностикалау мақсатында медициналық суреттер мен биометриялық деректерді талдау үшін машиналық оқыту алгоритмдерін әзірлеуге бағытталған. Түсіндірмелі жасанды интеллект әдістеріне ерекше назар аударылады, олар тек болжам жасап қана қоймай, сонымен қатар олардың себептерін түсіндіруге мүмкіндік береді.</p>
+                <p>Ағымдағы жетістіктер:</p>
+                <ul>
+                    <li>Рентген суреттеріндегі патологияларды жіктеу үшін нейрожелілік модель әзірленді</li>
+                    <li>Денсаулық көрсеткіштерін бақылау үшін уақыт қатарларын талдау алгоритмі жасалды</li>
+                </ul>
+            </div>
+            
+            <h3>Аяқталған жобалар:</h3>
+            
+            <div class="project-item">
+                <h4>Білім беру платформалары үшін үлкен деректерді өңдеу алгоритмдерін оңтайландыру</h4>
+                <div class="project-period">2021-2023</div>
+                <div class="project-funding">Университет ішіндегі грант</div>
+                <p>Жоба оқыту сапасын арттыру үшін білім беру деректерін талдаудың тиімді әдістерін әзірлеуге бағытталған болатын. Жоба аясында білім беру контентін дербестендіру және академиялық үлгерімді болжау алгоритмдері жасалды.</p>
+                <p>Жоба нәтижелері университеттің білім беру порталына енгізілді және пилоттық зерттеу нәтижелеріне сәйкес оқыту тиімділігін 18% арттыруға мүмкіндік берді.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="research-modal" id="researchModal3">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Конференциялар мен ғылыми іс-шаралар</h2>
+        
+        <div class="research-modal-text">
+            <p>Ақпараттық технологиялар, жасанды интеллект және деректерді өңдеу бойынша халықаралық конференцияларға үнемі қатысамын. Бірнеше бейінді конференциялардың бағдарламалық комитеттерінің мүшесі және ғылыми журналдардың рецензенті болып табыламын.</p>
+            
+            <h3>Алдағы баяндамалар:</h3>
+            <div class="conference-item">
+                <h4>International Conference on Data Science and Machine Learning (ICDSML 2025)</h4>
+                <div class="conference-date">15-17 мамыр 2025</div>
+                <div class="conference-location">Сингапур</div>
+                <p>Шақырылған баяндамашы, баяндама тақырыбы: "Advances in Deep Learning for Time Series Analysis"</p>
+            </div>
+            
+            <div class="conference-item">
+                <h4>Central Asian Symposium on Computational Intelligence</h4>
+                <div class="conference-date">3-5 маусым 2025</div>
+                <div class="conference-location">Алматы, Қазақстан</div>
+                <p>"Educational Data Mining: Predictive Models for Student Success" баяндамасын ұсыну</p>
+            </div>
+            
+            <div class="conference-item">
+                <h4>Summer School on Artificial Intelligence in Education</h4>
+                <div class="conference-date">10-15 шілде 2025</div>
+                <div class="conference-location">Нұр-Сұлтан, Қазақстан</div>
+                <p>Білім беру жүйелерінде машиналық оқыту әдістерін қолдану тақырыбында жас зерттеушілерге арналған дәрістер сериясы</p>
+            </div>
+            
+            <h3>Жақында жасалған баяндамалар:</h3>
+            <div class="conference-item">
+                <h4>IEEE International Conference on Machine Learning and Applications</h4>
+                <div class="conference-date">Желтоқсан 2024</div>
+                <div class="conference-location">Барселона, Испания</div>
+                <p>"Adaptive Neural Networks for Real-time Data Processing" баяндамасы</p>
+            </div>
+            
+            <div class="conference-item">
+                <h4>Asian Conference on Information Systems</h4>
+                <div class="conference-date">Қазан 2024</div>
+                <div class="conference-location">Токио, Жапония</div>
+                <p>"Future of AI in Developing Countries" панельдік талқылауына қатысу</p>
+            </div>
+            
+            <h3>Бағдарламалық комитеттерге мүшелік:</h3>
+            <ul>
+                <li>International Journal of Educational Technology (рецензент)</li>
+                <li>Central Asian Conference on Data Analysis (бағдарламалық комитет мүшесі)</li>
+                <li>DSMLA 2025: Conference on Data Science and Machine Learning Applications (ұйымдастыру комитетінің мүшесі)</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="research-modal" id="researchModal4">
+    <div class="research-modal-content">
+        <span class="research-modal-close">&times;</span>
+        <h2>Гранттар мен стипендиялар</h2>
+        
+        <div class="research-modal-text">
+            <p>Қазақстан Республикасының Білім және ғылым министрлігінен, сондай-ақ халықаралық қорлардан ғылыми зерттеулерге арналған гранттар алушысы болып табыламын. Фулбрайт бағдарламасының стипендиаты және әлемнің жетекші университеттерінде ғылыми тағылымдамалардың қатысушысы.</p>
+            
+            <h3>Ағымдағы гранттар:</h3>
+            <div class="grant-item">
+                <h4>Өнеркәсіптік кәсіпорындар үшін болжамды талдау жүйесін әзірлеу</h4>
+                <div class="grant-period">2023-2025</div>
+                <div class="grant-amount">15,000,000 теңге</div>
+                <div class="grant-funder">Қазақстан Республикасы Білім және ғылым министрлігі</div>
+                <p>Машиналық оқыту әдістерін қолдана отырып, өнеркәсіптік объектілерде авариялық жағдайларды болжау және алдын алуға арналған зияткерлік жүйені әзірлеуге арналған грант.</p>
+            </div>
+            
+            <div class="grant-item">
+                <h4>Медициналық информатика саласындағы халықаралық ынтымақтастық</h4>
+                <div class="grant-period">2024-2026</div>
+                <div class="grant-amount">$75,000</div>
+                <div class="grant-funder">Мельбурн университеті & Халықаралық зерттеулерді дамыту қоры</div>
+                <p>Мельбурн университетімен бірлескен жоба, аурулардың ерте диагностикасы үшін медициналық бейнелер мен биометриялық деректерді талдау алгоритмдерін әзірлеу бойынша.</p>
+            </div>
+            
+            <h3>Аяқталған гранттар:</h3>
+            <div class="grant-item">
+                <h4>Білім беру платформалары үшін үлкен деректерді өңдеу алгоритмдерін оңтайландыру</h4>
+                <div class="grant-period">2021-2023</div>
+                <div class="grant-amount">8,500,000 теңге</div>
+                <div class="grant-funder">Университет ішіндегі грант</div>
+                <p>Білім беру деректерін талдаудың тиімді әдістерін әзірлеу бойынша жоба, университеттің білім беру порталына сәтті енгізілді.</p>
+            </div>
+            
+            <div class="grant-item">
+                <h4>Фулбрайт бағдарламасының стипендиясы</h4>
+                <div class="grant-period">2019-2020</div>
+                <div class="grant-funder">АҚШ Мемлекеттік департаментінің білім және мәдени істер бюросы</div>
+                <p>Беркли қаласындағы Калифорния университетінде ғылыми жұмыс жүргізуге арналған зерттеу стипендиясы. Зерттеу тақырыбы: "Уақыт қатарларын өңдеуге арналған машиналық оқытудың заманауи әдістері".</p>
+            </div>
+            
+            <h3>Ғылыми тағылымдамалар:</h3>
+            <ul class="internship-list">
+                <li>
+                    <div class="internship-place">Калифорния университеті, Беркли (АҚШ)</div>
+                    <div class="internship-period">2019-2020</div>
+                    <div class="internship-topic">Машиналық оқытудың заманауи әдістері</div>
+                </li>
+                <li>
+                    <div class="internship-place">Мюнхен техникалық университеті (Германия)</div>
+                    <div class="internship-period">2017</div>
+                    <div class="internship-topic">Деректерді талдаудың зияткерлік жүйелері</div>
+                </li>
+                <li>
+                    <div class="internship-place">Наньян технологиялық университеті (Сингапур)</div>
+                    <div class="internship-period">2015</div>
+                    <div class="internship-topic">Күрделі жүйелердің компьютерлік модельдеуі</div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+    
+    // Функциональность модальных окон для новостей
+    document.addEventListener('DOMContentLoaded', function() {
+        // Находим все ссылки "Подробнее" в разделе новостей
+        const readMoreLinks = document.querySelectorAll('.news-item .read-more');
+        
+        // Привязываем обработчики событий к каждой ссылке
+        readMoreLinks.forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const modalId = `newsModal${index + 1}`;
+                document.getElementById(modalId).style.display = 'block';
+                
+                // Блокируем прокрутку основной страницы
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        // Находим все кнопки закрытия в модальных окнах
+        const closeButtons = document.querySelectorAll('.news-modal-close');
+        
+        // Привязываем обработчики к кнопкам закрытия
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.news-modal').style.display = 'none';
+                
+                // Возвращаем прокрутку основной страницы
+                document.body.style.overflow = 'auto';
+            });
+        });
+        
+        // Закрытие при клике вне содержимого модального окна
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('news-modal')) {
+                e.target.style.display = 'none';
+                
+                // Возвращаем прокрутку основной страницы
+                document.body.style.overflow = 'auto';
+            }
+        });
+    });
+    
+</script>
+<script>
+    // Функциональность модальных окон для научной деятельности
+    document.addEventListener('DOMContentLoaded', function() {
+        // Находим все ссылки в разделе научной деятельности
+        const researchLinks = document.querySelectorAll('.research-item .read-more');
+        
+        // Привязываем обработчики событий к каждой ссылке
+        researchLinks.forEach((link, index) => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const modalId = `researchModal${index + 1}`;
+                document.getElementById(modalId).style.display = 'block';
+                
+                // Блокируем прокрутку основной страницы
+                document.body.style.overflow = 'hidden';
+            });
+        });
+        
+        // Находим все кнопки закрытия в модальных окнах
+        const closeButtons = document.querySelectorAll('.research-modal-close');
+        
+        // Привязываем обработчики к кнопкам закрытия
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                this.closest('.research-modal').style.display = 'none';
+                
+                // Возвращаем прокрутку основной страницы
+                document.body.style.overflow = 'auto';
+            });
+        });
+        
+        // Закрытие при клике вне содержимого модального окна
+        window.addEventListener('click', function(e) {
+            if (e.target.classList.contains('research-modal')) {
+                e.target.style.display = 'none';
+                
+                // Возвращаем прокрутку основной страницы
+                document.body.style.overflow = 'auto';
+            }
+        });
+    });
+</script>
+</section>
+<!-- Footer -->
+<footer>
+    <div class="container footer-container">
+        <div class="footer-column">
+            <h3>Елена Иванова</h3>
+            <p>«Ақпараттық-есептеу жүйелері»<br>кафедрасының аға оқытушысы</p>
+            <div class="social-icons" style="margin-top: 15px;">
+                <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-researchgate"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-google-scholar"></i></a>
+                <a href="#" class="social-icon"><i class="fab fa-github"></i></a>
+            </div>
+        </div>
+        
+        <div class="footer-column">
+            <h3>Жылдам сілтемелер</h3>
+            <ul class="footer-links">
+                <li><a href="#about">Оқытушы туралы</a></li>
+                <li><a href="#research">Ғылыми қызметі</a></li>
+                <li><a href="#schedule">Кесте</a></li>
+                <li><a href="#materials">Оқу материалдары</a></li>
+                <li><a href="#news">Жаңалықтар</a></li>
+                <li><a href="#contact">Байланыс</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-column">
+            <h3>Жаңа жетістіктерден қорықпаңыз. Ғылымды танып-біліңіз – бұл өте қызықты!</h3>
+        </div>
+    </div>
+    
+    <div class="copyright">
+        &copy; 2025 Елена Иванованың жеке сайты | Барлық құқықтар қорғалған
+    </div>
+</footer>
